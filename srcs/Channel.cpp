@@ -2,6 +2,10 @@
 #include "Client.hpp"
 
 Channel::Channel(const std::string& name) : _name(name), _topic("") {}
+bool Channel::GetInvite()const
+{
+    return _is_invite_only;
+}
 
 const std::string& Channel::GetName() const {
     return _name;

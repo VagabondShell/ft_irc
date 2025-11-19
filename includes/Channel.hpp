@@ -19,20 +19,21 @@ class Channel {
 
         void AddMember(Client* client);
         void RemoveMember(Client* client);
-
         void AddOperator(Client* client);
         void RemoveOperator(Client* client);
 
         void SetTopic(const std::string& topic);
 
         void Broadcast(const std::string& message, Client* sender = NULL);
-
+        bool GetInvite();
+        void SetInvite();
         std::vector<Client*> GetMembers() const;
 
     private:
         std::string _name;
+        bool _is_invite_only;
         std::string _topic;
-
+        std::set<Client*> _invited_members;
         std::set<Client*> _members;
         std::set<Client*> _operators;
 };
