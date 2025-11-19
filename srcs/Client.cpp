@@ -3,7 +3,7 @@
 
 Client::Client(int fd, Server* serverPtr)
     : _Fd(fd), _OutBuffer(""), _Registered(false), _NickSet(false),
-      _PassSet(false), _ServerPtr(serverPtr) {}
+      _PassSet(false), _ServerPtr(serverPtr), _invisible(false) {}
 
 //Get the commnad untile the /r/n return it and remove it from the buffer
 std::string Client::ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen) {
@@ -108,6 +108,15 @@ void Client::SetIpAddress(const std::string &addrr){
   _IpAddrres = addrr;
 }
 
+
+void Client::SetInvisible(bool on) {
+    _invisible = on;
+}
+
+bool Client::IsInvisible() const {
+    return _invisible;
+}
+
 void Client::SetPollOut(bool state){
     std::vector<struct pollfd>& poll_fds = _ServerPtr->getPollfds();
     for (size_t i = 0; i < poll_fds.size(); ++i) {
@@ -143,3 +152,6 @@ void Client::ProcessAndExtractCommands() {
       pos_found = _ReadBuffer.find("\n");
   }
 }
+
+
+

@@ -39,6 +39,9 @@ public:
 
   void SendReply(const std::string &Numeric, const std::string &Content);
   void SendPrivateMessage(const std::string &Message);
+
+  void SetInvisible(bool on);
+  bool IsInvisible() const;
 private:
 
   int _Fd;
@@ -55,5 +58,7 @@ private:
   bool _UserSet;
 
   Server* _ServerPtr;
+  
+  bool _invisible;
 };
 #endif

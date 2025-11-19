@@ -8,6 +8,7 @@ enum e_cmd_type {
   CMD_USER    = 3,
   CMD_PONG    = 4,
   CMD_PRIVMSG  = 5,
+  CMD_MODE    = 6,
 };
 
 //bot command

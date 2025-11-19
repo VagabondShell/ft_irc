@@ -9,6 +9,7 @@ Server::Server(const int port, const std::string password)
     this->_commandMap["USER"] = CMD_USER;
     this->_commandMap["PRIVMSG"] = CMD_PRIVMSG;
     this->_commandMap["PONG"] = CMD_PONG;
+    this->_commandMap["MODE"] = CMD_MODE;
 
     _listenerFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -243,6 +244,9 @@ void Server::commandDispatcher(Client *client, std::string commandLine) {
             break;
         case CMD_PRIVMSG:
             handlePrivmsgCommand(client, splitedCommand);
+            break;
+        case CMD_MODE:
+            handleModeCommand(client, splitedCommand);
             break;
         default:
             break;

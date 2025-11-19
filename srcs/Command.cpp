@@ -45,3 +45,51 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string>args){
   }
 }
 
+
+
+
+void Server::handleModeCommand(Client *client, std::vector<std::string> args) 
+{
+    if (args.size() < 3) {
+        client->SendReply("461", "MODE :Not enough parameters");
+        return;
+    }
+    std::string target = args[1];
+    std::string modes = args[2];
+
+    if (!target.empty() && target[0] == '#') {
+        client->SendReply("403", target + " :Channel MODE not supported");
+        return;
+    }
+
+    std::map<std::string, Client*>::iterator it = _nicknames.find(target);
+    if (it == _nicknames.end()) {
+        client->SendReply("401", target + " :No such nick/channel");
+        return;
+    }
+
+    Client* targetClient = it->second;
+    if (client != targetClient) {
+        client->SendReply("482", ":You do not have permission to change other users' modes");
+        return;
+    }
+
+    bool set_mode = true;
+    for (size_t i = 0; i < modes.size(); ++i) {
+        char c = modes[i];
+        if (c == '+') { set_mode = true; continue; }
+        if (c == '-') { set_mode = false; continue; }
+        if (c == 'i') {
+            targetClient->SetInvisible(set_mode);
+            continue;
+        }
+
+    }
+
+
+    client->SendReply("221", target + " " + modes);
+
+    std::string modeNotification = ":ft_irc.local MODE " + target + " " + modes;
+    targetClient->GetOutBuffer().append(modeNotification + "\r\n");
+    targetClient->SetPollOut(true);
+}

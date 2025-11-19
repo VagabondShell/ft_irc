@@ -39,6 +39,8 @@ public:
   std::vector<struct pollfd> & getPollfds();
   void disconnectClient(int currentFd);
   void handlePrivmsgCommand(Client *client, std::vector<std::string>args); 
+  void handleModeCommand(Client *client, std::vector<std::string> args);
+
   // void initialBot();
   time_t getStartTime() const ;
   std::map<std::string, Client *> GetNickNames() const;
