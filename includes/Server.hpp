@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include "Command.hpp"
+#include "Channel.hpp"
 #include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
@@ -40,6 +41,10 @@ public:
   void disconnectClient(int currentFd);
   void handlePrivmsgCommand(Client *client, std::vector<std::string>args); 
   void handleModeCommand(Client *client, std::vector<std::string> args);
+  void handleJoinCommand(Client *client, std::vector<std::string> args);
+  void handleInviteCommand(Client *client, std::vector<std::string> args);
+  void handleKickCommand(Client *client, std::vector<std::string> args);
+  void handleTopicCommand(Client *client, std::vector<std::string> args);
 
   // void initialBot();
   time_t getStartTime() const ;
@@ -61,6 +66,7 @@ private:
   std::map<int, Client *> _clients;
   std::map<std::string, Client *> _nicknames;
   std::map<std::string, e_cmd_type> _commandMap;
+  std::map<std::string, Channel *> _channels;
   time_t _StartTime;
 
 };

@@ -6,7 +6,10 @@ bool Channel::GetInvite()const
 {
     return _is_invite_only;
 }
-
+void Channel::SetInvite(bool fact)
+{
+    _is_invite_only = fact;
+}
 const std::string& Channel::GetName() const {
     return _name;
 }
@@ -56,4 +59,16 @@ void Channel::Broadcast(const std::string& message, Client* sender) {
 
 std::vector<Client*> Channel::GetMembers() const {
     return std::vector<Client*>(_members.begin(), _members.end());
+}
+
+void Channel::InviteMember(Client* client) {
+    _invited_members.insert(client);
+}
+
+void Channel::UninviteMember(Client* client) {
+    _invited_members.erase(client);
+}
+
+bool Channel::IsInvited(Client* client) const {
+    return _invited_members.find(client) != _invited_members.end();
 }

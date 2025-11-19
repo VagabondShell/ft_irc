@@ -24,9 +24,13 @@ class Channel {
 
         void SetTopic(const std::string& topic);
 
+        void InviteMember(Client* client);
+        void UninviteMember(Client* client);
+        bool IsInvited(Client* client) const;
+
         void Broadcast(const std::string& message, Client* sender = NULL);
-        bool GetInvite();
-        void SetInvite();
+        bool GetInvite() const;
+        void SetInvite(bool fact);
         std::vector<Client*> GetMembers() const;
 
     private:

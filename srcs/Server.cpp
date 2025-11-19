@@ -10,6 +10,10 @@ Server::Server(const int port, const std::string password)
     this->_commandMap["PRIVMSG"] = CMD_PRIVMSG;
     this->_commandMap["PONG"] = CMD_PONG;
     this->_commandMap["MODE"] = CMD_MODE;
+    this->_commandMap["JOIN"] = CMD_JOIN;
+    this->_commandMap["INVITE"] = CMD_INVITE;
+    this->_commandMap["KICK"] = CMD_KICK;
+    this->_commandMap["TOPIC"] = CMD_TOPIC;
 
     _listenerFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -241,6 +245,18 @@ void Server::commandDispatcher(Client *client, std::string commandLine) {
             break;
         case CMD_USER:
             handleUserCommand(client, splitedCommand);
+            break;
+        case CMD_JOIN:
+            handleJoinCommand(client, splitedCommand);
+            break;
+        case CMD_INVITE:
+            handleInviteCommand(client, splitedCommand);
+            break;
+        case CMD_KICK:
+            handleKickCommand(client, splitedCommand);
+            break;
+        case CMD_TOPIC:
+            handleTopicCommand(client, splitedCommand);
             break;
         case CMD_PRIVMSG:
             handlePrivmsgCommand(client, splitedCommand);

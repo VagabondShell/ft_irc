@@ -9,6 +9,10 @@ enum e_cmd_type {
   CMD_PONG    = 4,
   CMD_PRIVMSG  = 5,
   CMD_MODE    = 6,
+  CMD_JOIN    = 7,
+  CMD_INVITE  = 8,
+  CMD_KICK    = 9,
+  CMD_TOPIC   = 10,
 };
 
 //bot command
