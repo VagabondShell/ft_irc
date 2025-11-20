@@ -146,7 +146,7 @@ void Client::ProcessAndExtractCommands() {
 
   while (pos_found != std::string::npos) {
     std::string command_line = ExtractAndEraseFromBuffer(pos_found, dilimiterLen);
-    _ServerPtr->Server::commandDispatcher(this, command_line);
+    _ServerPtr->commandDispatcher(this, command_line);
     pos_found = _ReadBuffer.find("\r\n");
     if (pos_found == std::string::npos)
       pos_found = _ReadBuffer.find("\n");

@@ -4,8 +4,11 @@
 #include <map>
 #include <string>
 #include <vector>
-class Client;
 #include "Server.hpp"
+#include <poll.h>
+
+class Client;
+class Server;
 
 class Client {
 public:

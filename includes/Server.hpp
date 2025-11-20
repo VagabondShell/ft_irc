@@ -22,10 +22,12 @@
 #include <unistd.h>
 #include <vector>
 #include <arpa/inet.h>
-class Server;
 #include "Client.hpp"
 #include "Command.hpp"
 #include "Command.hpp"
+
+class Client;
+class Channel;
 
 class Server {
 public:
