@@ -3,7 +3,10 @@ CC        = c++
 CFLAGS    =  -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 RM        = rm -rf
 
-SRCS_FILES      = main.cpp Server.cpp Client.cpp AuthCommands.cpp  Command.cpp Channel.cpp
+SRCS_FILES      = main.cpp Server.cpp Client.cpp AuthCommands.cpp Channel.cpp commands/mode.cpp \
+				  commands/privmsg.cpp commands/join.cpp commands/topic.cpp\
+				  commands/kick.cpp commands/invite.cpp
+				  
 SRCS 		= $(addprefix srcs/, $(SRCS_FILES))
 
 OBJS      = $(SRCS:.cpp=.o)
