@@ -17,7 +17,7 @@ struct ChannelModes {
 
     ChannelModes()
         : inviteOnly(false),
-          topicOpOnly(false),
+          topicOpOnly(true),
           passwordSet(false),
           userLimitSet(false),
           userLimit(0)

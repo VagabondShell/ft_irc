@@ -33,7 +33,7 @@ void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
     return;
   }
 
-  if (!channel->IsOperator(client)) {
+  if (!channel->IsOperator(client) && channel->GetModes().topicOpOnly == true) {
     client->SendReply("482", ":You're not channel operator");
     return;
   }
