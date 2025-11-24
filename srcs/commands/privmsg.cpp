@@ -82,8 +82,7 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
         std::cerr << "send() failed to client" << std::endl;
 
     return;
-
-
+    
   }
 }
 
