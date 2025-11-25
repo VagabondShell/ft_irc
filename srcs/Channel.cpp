@@ -11,7 +11,14 @@ const std::string& Channel::GetName() const {
 const std::string& Channel::GetTopic() const {
     return _topic;
 }
-
+ void Channel::Setkey(std::string k)
+ {
+    this->_key = k;
+ }
+ std::string Channel::Getkey()
+ {
+    return _key;
+ }
 void Channel::SetTopic(const std::string& topic) {
     _topic = topic;
 }

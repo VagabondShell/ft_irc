@@ -1,101 +1,103 @@
 #include "../../includes/Server.hpp"
 
-
-
+std::vector<std::string> genrateNames_keys(std::string str)
+{
+    std::vector<std::string> elmnts;
+    std::string elm = "";
+    for (size_t i = 0; i < str.size(); i++)
+    {
+        if (str[i] == ' ')
+            break;
+        if (str[i] == ',')
+        {
+            elmnts.push_back(elm);
+            elm = "";
+        }
+        else
+            elm += str[i];
+    }
+    elmnts.push_back(elm);
+    return elmnts;
+}
+bool check_channel(std::string channel)
+{
+    if (channel.empty() || channel.size() > 200 ||
+        (channel[0] != '#' && channel[0] != '&') ||
+        channel.find('\t') != std::string::npos)
+        return true;
+    return false;
+}
 void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
 {
+
+    std::string content;
+    Channel *channel_obj;
     if (args.size() < 2)
     {
-        client->SendReply("461", "JOIN :Not enough parameters");
+        content = ":Not enough parameter";
+        client->SendReply("461", content);
         return;
     }
+    std::vector<std::string> channels;
+    std::vector<std::string> keys;
 
-    std::string channelName = args[1];
-    std::string key = (args.size() >= 3 ? args[2] : "");
-
-    if (channelName.empty() || channelName[0] != '#')
+    std::vector<std::string>::iterator it;
+     std::map<std::string,Channel *>::iterator channel_it;
+    it = args.begin() + 1;
+    channels = genrateNames_keys(*it);
+    it++;
+    if (it != args.end())
+        keys = genrateNames_keys(*it);
+    for (size_t i = 0; i < channels.size(); i++)
     {
-        client->SendReply("403", channelName + " :No such channel");
-        return;
+        if (check_channel(channels[i]))
+        {
+            content = channels[i] +" :No such channel";
+            client->SendReply("403", content);
+        }
+       else
+       {
+            channel_it = _channels.find(channels[i]);
+            if(channel_it == _channels.end())
+            {
+                channel_obj = new Channel(channels[i]);
+                channel_obj->AddMember(client);
+                channel_obj->AddOperator(client);
+                _channels[channels[i]] = channel_obj;
+                client->SendReply("353","= "+channels[i]+" :"+client->GetNickName()+" " +this->_serverName);
+            }
+            else
+            {
+                ChannelModes Mods = channel_it->second->GetModes();
+                if(channel_it->second->IsMember(client))
+                    continue;
+                if(channel_it->second->IsInvited(client))
+                {
+                    channel_it->second->AddMember(client);
+                    client->SendReply("353","= "+channels[i]+" :"+client->GetNickName()+" " +this->_serverName);
+                    continue;
+                }
+                if(Mods.inviteOnly && !channel_it->second->IsInvited(client))
+                {
+                     client->SendReply("473",channels[i]+" :Cannot join channel, you must be invited (+i)");
+                    continue;
+                }
+                if(Mods.passwordSet)
+                {
+                    if(i >= keys.size() || Mods.password != keys[i])
+                    {
+                        client->SendReply("475",channels[i]+" :Cannot join channel, you need the correct key (+k)");
+                        continue;
+                    }
+                }
+                if(Mods.userLimitSet && _channels.size() >= Mods.userLimitSet)
+                {
+                    client->SendReply("471",":Cannot join channel, Channel is full (+l)");
+                    continue;
+                }
+                 channel_it->second->AddMember(client);
+                 client->SendReply("353","= "+channels[i]+" :"+client->GetNickName() +" join" +" " +this->_serverName);
+            }
+       }
     }
-
-    Channel *channel;
-
-    // Create channel if it does not exist
-    if (_channels.find(channelName) == _channels.end())
-    {
-        channel = new Channel(channelName);
-        _channels[channelName] = channel;
-    }
-    else
-        channel = _channels[channelName];
-
-    // ---------- MODE CHECKS ----------
-    ChannelModes &m = channel->GetModes();
-
-    if (m.inviteOnly && !channel->IsInvited(client))
-    {
-        client->SendReply("473", channelName + " :Cannot join channel (+i)");
-        return;
-    }
-
-    if (m.passwordSet && key != m.password)
-    {
-        client->SendReply("475", channelName + " :Cannot join channel (+k)");
-        return;
-    }
-
-    if (m.userLimitSet &&
-        (int)channel->GetMembers().size() >= m.userLimit)
-    {
-        client->SendReply("471", channelName + " :Cannot join channel (+l)");
-        return;
-    }
-
-    // ---------- JOIN LOGIC ----------
-    bool was_empty = channel->GetMembers().empty();
-
-    if (!channel->IsMember(client))
-        channel->AddMember(client);
-
-    if (was_empty)
-        channel->AddOperator(client);
-
-    // JOIN message
-    std::string prefix = ":" + client->GetNickName() + "!" +
-                         client->GetUserName() + "@" + client->GetIpAddress();
-
-    std::string joinMsg = prefix + " JOIN " + channelName;
-
-    // Send to this client
-    client->GetOutBuffer().append(joinMsg + "\r\n");
-    client->SetPollOut(true);
-
-    // Send to others
-    channel->Broadcast(joinMsg, client);
-
-    // Send topic
-    if (!channel->GetTopic().empty())
-    {
-        client->GetOutBuffer().append("332 " + client->GetNickName() + " " +
-                                      channelName + " :" + channel->GetTopic() + "\r\n");
-        client->SetPollOut(true);
-    }
-
-    // NAMES list
-    std::vector<Client *> members = channel->GetMembers();
-    std::string names = "353 " + client->GetNickName() + " = " + channelName + " :";
-
-    for (size_t i = 0; i < members.size(); ++i)
-    {
-        if (channel->IsOperator(members[i])) names += "@";
-        names += members[i]->GetNickName();
-        if (i + 1 < members.size()) names += " ";
-    }
-
-    client->GetOutBuffer().append(names + "\r\n");
-    client->SetPollOut(true);
-
-    client->GetOutBuffer().append("366 " + client->GetNickName() + " " + channelName + " :End of /NAMES list.\r\n");
-    client->SetPollOut(true);
 }

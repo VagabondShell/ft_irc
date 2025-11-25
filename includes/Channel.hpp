@@ -42,26 +42,19 @@ public:
 
     std::vector<Client*> GetMembers() const;
 
-
     void InviteMember(Client* client);
     void UninviteMember(Client* client);
     bool IsInvited(Client* client) const;
-
-
     ChannelModes& GetModes();
     const ChannelModes& GetModes() const;
-
-
     void Broadcast(const std::string& message, Client* sender = NULL);
 
 private:
     std::string _name;
     std::string _topic;
-
     std::set<Client*> _members;
     std::set<Client*> _operators;
     std::set<Client*> _invited_members;
-
     ChannelModes _modes;
 };
 
