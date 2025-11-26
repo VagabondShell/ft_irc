@@ -40,8 +40,7 @@ public:
     void AddOperator(Client* client);
     void RemoveOperator(Client* client);
 
-    std::vector<Client*> GetMembers() const;
-
+    const std::set<Client*>& GetMembers() const;
     void InviteMember(Client* client);
     void UninviteMember(Client* client);
     bool IsInvited(Client* client) const;

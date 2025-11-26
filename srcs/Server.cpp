@@ -277,6 +277,7 @@ void Server::disconnectClient(int current_fd) {
         << " Nickname: " << (clientToDelete->GetNickName().empty() ? "(Unregistered)" 
         : clientToDelete->GetNickName()) << " | FD: " << current_fd << std::endl;
     _nicknames.erase(clientToDelete->GetNickName());
+    
     close(current_fd);
     delete clientToDelete;
     _clients.erase(current_fd);

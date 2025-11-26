@@ -11,14 +11,7 @@ const std::string& Channel::GetName() const {
 const std::string& Channel::GetTopic() const {
     return _topic;
 }
- void Channel::Setkey(std::string k)
- {
-    this->_key = k;
- }
- std::string Channel::Getkey()
- {
-    return _key;
- }
+
 void Channel::SetTopic(const std::string& topic) {
     _topic = topic;
 }
@@ -49,10 +42,9 @@ void Channel::RemoveOperator(Client* client) {
     _operators.erase(client);
 }
 
-std::vector<Client*> Channel::GetMembers() const {
-    return std::vector<Client*>(_members.begin(), _members.end());
+const std::set<Client*>& Channel::GetMembers() const {
+    return _members;
 }
-
 void Channel::InviteMember(Client* client) {
     _invited_members.insert(client);
 }
