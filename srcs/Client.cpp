@@ -1,6 +1,26 @@
 #include "../includes/Client.hpp"
 #include <vector>
 
+Client::Client(Client &other)
+{
+    _Fd          = other._Fd;
+    _ReadBuffer  = other._ReadBuffer;
+    _OutBuffer   = other._OutBuffer;
+
+    _NickName    = other._NickName;
+    _UserName    = other._UserName;
+    _IpAddrres   = other._IpAddrres;
+
+    _Registered  = other._Registered;
+    _NickSet     = other._NickSet;
+    _PassSet     = other._PassSet;
+    _UserSet     = other._UserSet;
+
+    _ServerPtr   = other._ServerPtr;   // shallow copy (pointer)
+
+    _invisible   = other._invisible;
+}
+
 Client::Client(int fd, Server* serverPtr)
     : _Fd(fd), _OutBuffer(""), _Registered(false), _NickSet(false),
       _PassSet(false), _ServerPtr(serverPtr), _invisible(false) {}
@@ -153,5 +173,20 @@ void Client::ProcessAndExtractCommands() {
   }
 }
 
-
-
+void Client::leftAllchannels()
+{
+  std::set<Channel*>::iterator it;
+  for (it = mychannles.begin(); it != mychannles.end(); it++)
+  {
+    Channel *chan = *it;
+    chan->RemoveMember(this);
+    if(chan->GetClientCount() == 0)
+      this->_ServerPtr->remove_channel(chan->GetName());
+    mychannles.erase(chan);
+  }
+  
+}
+void Client::addChannel(Channel *channel)
+{
+  mychannles.insert(channel);
+}

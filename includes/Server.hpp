@@ -47,9 +47,10 @@ public:
   void handleInviteCommand(Client *client, std::vector<std::string> args);
   void handleKickCommand(Client *client, std::vector<std::string> args);
   void handleTopicCommand(Client *client, std::vector<std::string> args);
-
+  bool is_active(std::string);
   // void initialBot();
   time_t getStartTime() const ;
+  void remove_channel(std::string channelName);
   std::map<std::string, Client *> GetNickNames() const;
 
 private:
@@ -60,6 +61,7 @@ private:
   void handlePassCommand(Client *client, std::vector<std::string>args); 
   void handleUserCommand(Client *client, std::vector<std::string>args); 
   void handleNickCommand(Client *client, std::vector<std::string>args);
+ 
   std::string _password;
   int _port;
   int _listenerFd;

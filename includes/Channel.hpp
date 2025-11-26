@@ -39,7 +39,7 @@ public:
     void RemoveMember(Client* client);
     void AddOperator(Client* client);
     void RemoveOperator(Client* client);
-
+    int GetClientCount();
     const std::set<Client*>& GetMembers() const;
     void InviteMember(Client* client);
     void UninviteMember(Client* client);
@@ -47,7 +47,6 @@ public:
     ChannelModes& GetModes();
     const ChannelModes& GetModes() const;
     void Broadcast(const std::string& message, Client* sender = NULL);
-
 private:
     std::string _name;
     std::string _topic;

@@ -155,7 +155,10 @@ void Server::handleNewConnection() {
     client_poll_fd.revents = 0;
     _pollFds.push_back(client_poll_fd);
 }
-
+bool Server::is_active(std::string nickname)
+{
+    return _nicknames.find(nickname) != _nicknames.end();
+}
 bool Server::handleClientCommand(const int current_fd) {
 
     Client *client = _clients[current_fd];
@@ -276,8 +279,9 @@ void Server::disconnectClient(int current_fd) {
         << "[DISCONNECT] Client disconnected."
         << " Nickname: " << (clientToDelete->GetNickName().empty() ? "(Unregistered)" 
         : clientToDelete->GetNickName()) << " | FD: " << current_fd << std::endl;
+        clientToDelete->leftAllchannels();
     _nicknames.erase(clientToDelete->GetNickName());
-    
+   
     close(current_fd);
     delete clientToDelete;
     _clients.erase(current_fd);
@@ -329,4 +333,7 @@ void Server::run() {
 
 
 
-
+void Server::remove_channel(std::string channelName)
+{
+    _channels.erase(channelName);
+}

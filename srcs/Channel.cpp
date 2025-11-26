@@ -74,3 +74,8 @@ void Channel::Broadcast(const std::string& message, Client* sender) {
         }
     }
 }
+
+int Channel::GetClientCount()
+{
+    return _members.size();
+}

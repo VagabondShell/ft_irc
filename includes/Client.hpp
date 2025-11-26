@@ -14,7 +14,7 @@ class Client {
 public:
 
   Client(int Fd, Server* ServerPtr);
-
+  Client(Client &other);
   void ProcessAndExtractCommands();
   std::string ExtractAndEraseFromBuffer(size_t PosFound, int DelimiterLen);
 
@@ -29,6 +29,8 @@ public:
   const std::string GetNickName() ;
   const std::string GetUserName() const;
   const std::string & GetIpAddress() const ;
+  void addChannel(Channel *channel);
+  void leftAllchannels();
   Server* GetServerPtr() const;
 
   void SetRegistration();
@@ -61,7 +63,8 @@ private:
   bool _UserSet;
 
   Server* _ServerPtr;
-  
+  std::set<Channel*> mychannles;
   bool _invisible;
 };
+
 #endif

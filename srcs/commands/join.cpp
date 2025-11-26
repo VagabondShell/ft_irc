@@ -31,14 +31,15 @@ std::string channel_members(Channel const &chan )
     for (it = members.begin(); it != members.end(); ++it)
     {
         Client* c = *it;
-        if(c)
+        if(chan.IsMember(c))
         {
+            std::cout<<"tfargiii3 bda"<<std::endl;
             if(chan.IsOperator(c))
         {
             list+= "@"+c->GetNickName()+" ";
         }
         else
-            list+=c->GetNickName()+" ";
+            list += c->GetNickName()+" ";
         }
         
     }
@@ -102,6 +103,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                 channel_obj->AddMember(client);
                 channel_obj->AddOperator(client);
                 _channels[channels[i]] = channel_obj;
+                client->addChannel(channel_obj);
                 respone_msg(client,prefix,channels[i],channel_obj);
             }
             else
@@ -112,6 +114,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                 if(channel_it->second->IsInvited(client))
                 {
                     channel_it->second->AddMember(client);
+                    client->addChannel(channel_it->second);
                     respone_msg(client,prefix,channels[i],channel_it->second);
                     continue;
                 }
@@ -134,6 +137,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                     continue;
                 }
                  channel_it->second->AddMember(client);
+                 client->addChannel(channel_it->second);
                  respone_msg(client,prefix,channels[i],channel_it->second);
             }
        }
