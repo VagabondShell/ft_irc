@@ -33,7 +33,6 @@ std::string channel_members(Channel const &chan )
         Client* c = *it;
         if(chan.IsMember(c))
         {
-            std::cout<<"tfargiii3 bda"<<std::endl;
             if(chan.IsOperator(c))
         {
             list+= "@"+c->GetNickName()+" ";
@@ -54,6 +53,7 @@ void respone_msg(Client *client,std::string prefix,std::string channel_name,Chan
         client->SendReply("353","= " + channel_name+": " + channel_members(*channel));
         client->SendReply("366",channel_name+" :End of /NAMES list.");
         client->SetPollOut(true);
+        channel->Broadcast((prefix + " JOIN " + channel_name + "\r\n"),client);
     }
 }
 bool check_channel(std::string channel)
@@ -131,7 +131,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                         continue;
                     }
                 }
-                if(Mods.userLimitSet && _channels.size() >= Mods.userLimitSet)
+                if(Mods.userLimitSet && channel_it->second->GetMembers().size() >= Mods.userLimit)
                 {
                     client->SendReply("471",":Cannot join channel, Channel is full (+l)");
                     continue;
