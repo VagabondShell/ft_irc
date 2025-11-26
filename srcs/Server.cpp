@@ -9,6 +9,11 @@ Server::Server(const int port, const std::string password)
     this->_commandMap["USER"] = CMD_USER;
     this->_commandMap["PRIVMSG"] = CMD_PRIVMSG;
     this->_commandMap["PONG"] = CMD_PONG;
+    this->_commandMap["MODE"] = CMD_MODE;
+    this->_commandMap["JOIN"] = CMD_JOIN;
+    this->_commandMap["INVITE"] = CMD_INVITE;
+    this->_commandMap["KICK"] = CMD_KICK;
+    this->_commandMap["TOPIC"] = CMD_TOPIC;
 
     _listenerFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -150,7 +155,10 @@ void Server::handleNewConnection() {
     client_poll_fd.revents = 0;
     _pollFds.push_back(client_poll_fd);
 }
-
+bool Server::is_active(std::string nickname)
+{
+    return _nicknames.find(nickname) != _nicknames.end();
+}
 bool Server::handleClientCommand(const int current_fd) {
 
     Client *client = _clients[current_fd];
@@ -241,8 +249,23 @@ void Server::commandDispatcher(Client *client, std::string commandLine) {
         case CMD_USER:
             handleUserCommand(client, splitedCommand);
             break;
+        case CMD_JOIN:
+            handleJoinCommand(client, splitedCommand);
+            break;
+        case CMD_INVITE:
+            handleInviteCommand(client, splitedCommand);
+            break;
+        case CMD_KICK:
+            handleKickCommand(client, splitedCommand);
+            break;
+        case CMD_TOPIC:
+            handleTopicCommand(client, splitedCommand);
+            break;
         case CMD_PRIVMSG:
             handlePrivmsgCommand(client, splitedCommand);
+            break;
+        case CMD_MODE:
+            handleModeCommand(client, splitedCommand);
             break;
         default:
             break;
@@ -256,7 +279,9 @@ void Server::disconnectClient(int current_fd) {
         << "[DISCONNECT] Client disconnected."
         << " Nickname: " << (clientToDelete->GetNickName().empty() ? "(Unregistered)" 
         : clientToDelete->GetNickName()) << " | FD: " << current_fd << std::endl;
+        clientToDelete->leftAllchannels();
     _nicknames.erase(clientToDelete->GetNickName());
+   
     close(current_fd);
     delete clientToDelete;
     _clients.erase(current_fd);
@@ -308,4 +333,7 @@ void Server::run() {
 
 
 
-
+void Server::remove_channel(std::string channelName)
+{
+    _channels.erase(channelName);
+}

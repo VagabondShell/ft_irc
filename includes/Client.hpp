@@ -4,14 +4,17 @@
 #include <map>
 #include <string>
 #include <vector>
-class Client;
 #include "Server.hpp"
+#include <poll.h>
+
+class Client;
+class Server;
 
 class Client {
 public:
 
   Client(int Fd, Server* ServerPtr);
-
+  Client(Client &other);
   void ProcessAndExtractCommands();
   std::string ExtractAndEraseFromBuffer(size_t PosFound, int DelimiterLen);
 
@@ -26,6 +29,8 @@ public:
   const std::string GetNickName() ;
   const std::string GetUserName() const;
   const std::string & GetIpAddress() const ;
+  void addChannel(Channel *channel);
+  void leftAllchannels();
   Server* GetServerPtr() const;
 
   void SetRegistration();
@@ -39,6 +44,9 @@ public:
 
   void SendReply(const std::string &Numeric, const std::string &Content);
   void SendPrivateMessage(const std::string &Message);
+
+  void SetInvisible(bool on);
+  bool IsInvisible() const;
 private:
 
   int _Fd;
@@ -55,5 +63,8 @@ private:
   bool _UserSet;
 
   Server* _ServerPtr;
+  std::set<Channel*> mychannles;
+  bool _invisible;
 };
+
 #endif

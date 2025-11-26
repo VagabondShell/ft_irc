@@ -1,9 +1,29 @@
 #include "../includes/Client.hpp"
 #include <vector>
 
+Client::Client(Client &other)
+{
+    _Fd          = other._Fd;
+    _ReadBuffer  = other._ReadBuffer;
+    _OutBuffer   = other._OutBuffer;
+
+    _NickName    = other._NickName;
+    _UserName    = other._UserName;
+    _IpAddrres   = other._IpAddrres;
+
+    _Registered  = other._Registered;
+    _NickSet     = other._NickSet;
+    _PassSet     = other._PassSet;
+    _UserSet     = other._UserSet;
+
+    _ServerPtr   = other._ServerPtr;   // shallow copy (pointer)
+
+    _invisible   = other._invisible;
+}
+
 Client::Client(int fd, Server* serverPtr)
     : _Fd(fd), _OutBuffer(""), _Registered(false), _NickSet(false),
-      _PassSet(false), _ServerPtr(serverPtr) {}
+      _PassSet(false), _ServerPtr(serverPtr), _invisible(false) {}
 
 //Get the commnad untile the /r/n return it and remove it from the buffer
 std::string Client::ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen) {
@@ -108,6 +128,15 @@ void Client::SetIpAddress(const std::string &addrr){
   _IpAddrres = addrr;
 }
 
+
+void Client::SetInvisible(bool on) {
+    _invisible = on;
+}
+
+bool Client::IsInvisible() const {
+    return _invisible;
+}
+
 void Client::SetPollOut(bool state){
     std::vector<struct pollfd>& poll_fds = _ServerPtr->getPollfds();
     for (size_t i = 0; i < poll_fds.size(); ++i) {
@@ -137,9 +166,27 @@ void Client::ProcessAndExtractCommands() {
 
   while (pos_found != std::string::npos) {
     std::string command_line = ExtractAndEraseFromBuffer(pos_found, dilimiterLen);
-    _ServerPtr->Server::commandDispatcher(this, command_line);
+    _ServerPtr->commandDispatcher(this, command_line);
     pos_found = _ReadBuffer.find("\r\n");
     if (pos_found == std::string::npos)
       pos_found = _ReadBuffer.find("\n");
   }
+}
+
+void Client::leftAllchannels()
+{
+  std::set<Channel*>::iterator it;
+  for (it = mychannles.begin(); it != mychannles.end(); it++)
+  {
+    Channel *chan = *it;
+    chan->RemoveMember(this);
+    if(chan->GetClientCount() == 0)
+      this->_ServerPtr->remove_channel(chan->GetName());
+    mychannles.erase(chan);
+  }
+  
+}
+void Client::addChannel(Channel *channel)
+{
+  mychannles.insert(channel);
 }

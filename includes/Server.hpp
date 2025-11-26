@@ -17,14 +17,17 @@
 #include <sstream>
 #include <string>
 #include "Command.hpp"
+#include "Channel.hpp"
 #include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
 #include <arpa/inet.h>
-class Server;
 #include "Client.hpp"
 #include "Command.hpp"
 #include "Command.hpp"
+
+class Client;
+class Channel;
 
 class Server {
 public:
@@ -39,8 +42,15 @@ public:
   std::vector<struct pollfd> & getPollfds();
   void disconnectClient(int currentFd);
   void handlePrivmsgCommand(Client *client, std::vector<std::string>args); 
+  void handleModeCommand(Client *client, std::vector<std::string> args);
+  void handleJoinCommand(Client *client, std::vector<std::string> args);
+  void handleInviteCommand(Client *client, std::vector<std::string> args);
+  void handleKickCommand(Client *client, std::vector<std::string> args);
+  void handleTopicCommand(Client *client, std::vector<std::string> args);
+  bool is_active(std::string);
   // void initialBot();
   time_t getStartTime() const ;
+  void remove_channel(std::string channelName);
   std::map<std::string, Client *> GetNickNames() const;
 
 private:
@@ -51,6 +61,7 @@ private:
   void handlePassCommand(Client *client, std::vector<std::string>args); 
   void handleUserCommand(Client *client, std::vector<std::string>args); 
   void handleNickCommand(Client *client, std::vector<std::string>args);
+ 
   std::string _password;
   int _port;
   int _listenerFd;
@@ -59,6 +70,7 @@ private:
   std::map<int, Client *> _clients;
   std::map<std::string, Client *> _nicknames;
   std::map<std::string, e_cmd_type> _commandMap;
+  std::map<std::string, Channel *> _channels;
   time_t _StartTime;
 
 };

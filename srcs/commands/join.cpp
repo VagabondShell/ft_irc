@@ -1,0 +1,145 @@
+#include "../../includes/Server.hpp"
+
+std::vector<std::string> genrateNames_keys(std::string str)
+{
+    std::vector<std::string> elmnts;
+    std::string elm = "";
+    for (size_t i = 0; i < str.size(); i++)
+    {
+        if (str[i] == ' ')
+            break;
+        if (str[i] == ',')
+        {
+            if(elm.find(' ') == std::string::npos)
+                elmnts.push_back(elm);
+            elm = "";
+        }
+        else
+            elm += str[i];
+    }
+    if((elm.find(' ') == std::string::npos && !elm.empty()))
+            elmnts.push_back(elm);
+
+    return elmnts;
+}
+std::string channel_members(Channel const &chan )
+{
+    const std::set<Client*>& members = chan.GetMembers();
+
+    std::set<Client*>::const_iterator it;
+    std::string list="";
+    for (it = members.begin(); it != members.end(); ++it)
+    {
+        Client* c = *it;
+        if(chan.IsMember(c))
+        {
+            std::cout<<"tfargiii3 bda"<<std::endl;
+            if(chan.IsOperator(c))
+        {
+            list+= "@"+c->GetNickName()+" ";
+        }
+        else
+            list += c->GetNickName()+" ";
+        }
+        
+    }
+    return list;
+}
+void respone_msg(Client *client,std::string prefix,std::string channel_name,Channel *channel)
+{
+
+    if(client) 
+    {
+        client->GetOutBuffer().append((prefix+" JOIN " + channel_name + "\r\n"));
+        client->SendReply("353","= " + channel_name+": " + channel_members(*channel));
+        client->SendReply("366",channel_name+" :End of /NAMES list.");
+        client->SetPollOut(true);
+    }
+}
+bool check_channel(std::string channel)
+{
+    if (channel.empty() || channel.size() > 200 ||
+        (channel[0] != '#' && channel[0] != '&') ||
+        channel.find('\t') != std::string::npos)
+        return true;
+    return false;
+}
+
+void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
+{
+
+    std::string content;
+    Channel *channel_obj;
+    if (args.size() < 2)
+    {
+        content = ":Not enough parameter";
+        client->SendReply("461", content);
+        return;
+    }
+    std::vector<std::string> channels;
+    std::vector<std::string> keys;
+    std::string prefix = ":" + client->GetNickName() + "!~" + client->GetUserName() +
+                          "@" + client->GetIpAddress();
+    std::vector<std::string>::iterator it;
+    std::map<std::string,Channel *>::iterator channel_it;
+    it = args.begin() + 1;
+    channels = genrateNames_keys(*it);
+    it++;
+    if (it != args.end())
+        keys = genrateNames_keys(*it);
+    for (size_t i = 0; i < channels.size(); i++)
+    {
+        if (check_channel(channels[i]))
+        {
+            content = channels[i] +" :No such channel";
+            client->SendReply("403", content);
+        }
+       else
+       {
+            channel_it = _channels.find(channels[i]);
+            if(channel_it == _channels.end())
+            {
+                channel_obj = new Channel(channels[i]);
+                channel_obj->AddMember(client);
+                channel_obj->AddOperator(client);
+                _channels[channels[i]] = channel_obj;
+                client->addChannel(channel_obj);
+                respone_msg(client,prefix,channels[i],channel_obj);
+            }
+            else
+            {
+                ChannelModes Mods = channel_it->second->GetModes();
+                if(channel_it->second->IsMember(client))
+                    continue;
+                if(channel_it->second->IsInvited(client))
+                {
+                    channel_it->second->AddMember(client);
+                    client->addChannel(channel_it->second);
+                    respone_msg(client,prefix,channels[i],channel_it->second);
+                    continue;
+                }
+                if(Mods.inviteOnly && !channel_it->second->IsInvited(client))
+                {
+                     client->SendReply("473",channels[i]+" :Cannot join channel, you must be invited (+i)");
+                    continue;
+                }
+                if(Mods.passwordSet)
+                {
+                    if(i >= keys.size() || Mods.password != keys[i])
+                    {
+                        client->SendReply("475",channels[i]+" :Cannot join channel, you need the correct key (+k)");
+                        continue;
+                    }
+                }
+                if(Mods.userLimitSet && _channels.size() >= Mods.userLimitSet)
+                {
+                    client->SendReply("471",":Cannot join channel, Channel is full (+l)");
+                    continue;
+                }
+                 channel_it->second->AddMember(client);
+                 client->addChannel(channel_it->second);
+                 respone_msg(client,prefix,channels[i],channel_it->second);
+            }
+       }
+    }
+}
