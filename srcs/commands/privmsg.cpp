@@ -63,20 +63,26 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
   }
   else
   {
-    std::map<std::string, Client *>::iterator it = _nicknames.find(target);
-    if (it != _nicknames.end())
+    std::map<std::string, Client*>::iterator it = _nicknames.find(target);
+    if (it == _nicknames.end())
     {
-      Client *senderClient = it->second;
-      std::string messageee = "PRIVMSG " + senderClient->GetNickName() + " :" + message + "\r\n";
-      std::cout << "outgoing message: " << messageee << std::endl;
-      send(senderClient->GetFd(), messageee.c_str(), messageee.length(), 0);
-      return;
+        client->SendReply("401", target + " :No such nick/channel");
+        return;
     }
-    else
-    {
-      std::cout << "no client found" << std::endl;
-      return;
-    }
+
+    Client *receiver = it->second;
+
+    std::string prefix = ":" + client->GetNickName() + "!" +
+                         client->GetUserName() + "@" +
+                         client->GetIpAddress();
+
+    std::string msg = prefix + " PRIVMSG " + target + " :" + message + "\r\n";
+
+    if (send(receiver->GetFd(), msg.c_str(), msg.length(), 0) == -1)
+        std::cerr << "send() failed to client" << std::endl;
+
+    return;
+    
   }
 }
 
