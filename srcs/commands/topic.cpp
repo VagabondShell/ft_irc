@@ -5,6 +5,7 @@
 void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
 {
   if (args.size() < 2) {
+    std::cout << RED << "Not enough params" << std::endl;
     client->SendReply("461", "TOPIC :Not enough parameters");
     return;
   }

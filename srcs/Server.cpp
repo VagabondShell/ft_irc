@@ -214,7 +214,7 @@ std::vector<std::string> split_string_to_vector(const std::string &input_string,
         if (!segment.empty())
             tokens.push_back(segment);
     }
-    if (!trailing_part.empty()){
+    if (!trailing_part.empty() || (colon_pos != std::string::npos)){
         tokens.push_back(trailing_part);
     }
     return tokens;
@@ -330,8 +330,6 @@ void Server::run() {
         }
     }
 }
-
-
 
 void Server::remove_channel(std::string channelName)
 {
