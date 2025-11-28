@@ -172,21 +172,21 @@ void Client::ProcessAndExtractCommands() {
       pos_found = _ReadBuffer.find("\n");
   }
 }
-
 void Client::leftAllchannels()
 {
-  std::set<Channel*>::iterator it;
-  for (it = mychannles.begin(); it != mychannles.end(); it++)
-  {
-    Channel *chan = *it;
-    chan->RemoveMember(this);
-    if(chan->GetClientCount() == 0)
-      this->_ServerPtr->remove_channel(chan->GetName());
-    mychannles.erase(chan);
-  }
-  
+    std::set<Channel*>::iterator it = mychannles.begin();
+    while (it != mychannles.end())
+    {
+        Channel *chan = *it;
+        chan->RemoveMember(this);
+        if (chan->GetClientCount() == 0)
+            this->_ServerPtr->remove_channel(chan->GetName());
+        
+        mychannles.erase(it++);
+    }
 }
+
 void Client::addChannel(Channel *channel)
 {
-  mychannles.insert(channel);
+    mychannles.insert(channel);
 }

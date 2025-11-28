@@ -22,25 +22,24 @@ std::vector<std::string> genrateNames_keys(std::string str)
 
     return elmnts;
 }
-std::string channel_members(Channel const &chan )
+std::string channel_members(Channel const &chan)
 {
-    const std::set<Client*>& members = chan.GetMembers();
+    const std::map<std::string, Client*>& members = chan.GetMembers();
 
-    std::set<Client*>::const_iterator it;
-    std::string list="";
+    std::map<std::string, Client*>::const_iterator it;
+    std::string list = "";
     for (it = members.begin(); it != members.end(); ++it)
     {
-        Client* c = *it;
-        if(chan.IsMember(c))
+        Client* c = it->second;  // Access the Client* from the map pair
+        if (chan.IsMember(c))
         {
-            if(chan.IsOperator(c))
-        {
-            list+= "@"+c->GetNickName()+" ";
+            if (chan.IsOperator(c))
+            {
+                list += "@" + c->GetNickName() + " ";
+            }
+            else
+                list += c->GetNickName() + " ";
         }
-        else
-            list += c->GetNickName()+" ";
-        }
-        
     }
     return list;
 }
