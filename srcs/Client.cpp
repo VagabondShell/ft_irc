@@ -1,6 +1,6 @@
 #include "../includes/Client.hpp"
 #include <vector>
-
+#include <set>  
 Client::Client(Client &other)
 {
     _Fd          = other._Fd;

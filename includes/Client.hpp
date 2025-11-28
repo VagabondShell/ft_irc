@@ -6,7 +6,7 @@
 #include <vector>
 #include "Server.hpp"
 #include <poll.h>
-
+#include <set>
 class Client;
 class Server;
 
