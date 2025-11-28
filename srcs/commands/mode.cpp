@@ -187,7 +187,6 @@ void Server::handleModeCommand(Client *client, std::vector<std::string> args)
     execute_modes(client, target, modes_vec, parms);
     std::string notify = ":ft_irc.local MODE " + target + " " + modes;
     _channels[target]->Broadcast(notify, NULL);
-    client->SendReply("", target + " " + modes);
 }
 
 
