@@ -79,3 +79,24 @@ int Channel::GetClientCount()
 {
     return _members.size();
 }
+
+
+void Channel::setTopicSetter(const std::string& setter) 
+{
+    _topicSetter = setter;
+}
+
+const std::string& Channel::getTopicSetter() const 
+{
+    return _topicSetter;
+}
+
+void Channel::setTopicSetTime(const std::string& time) 
+{
+    _topicSetTime = time;
+}
+
+const std::string& Channel::getTopicSetTime() const 
+{
+    return _topicSetTime;
+}

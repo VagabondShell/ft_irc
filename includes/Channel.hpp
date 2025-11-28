@@ -47,6 +47,12 @@ public:
     ChannelModes& GetModes();
     const ChannelModes& GetModes() const;
     void Broadcast(const std::string& message, Client* sender = NULL);
+
+    void setTopicSetter(const std::string& setter);
+    const std::string& getTopicSetter() const;
+    void setTopicSetTime(const std::string& time);
+    const std::string& getTopicSetTime() const;    
+    
 private:
     std::string _name;
     std::string _topic;
@@ -54,6 +60,9 @@ private:
     std::set<Client*> _operators;
     std::set<Client*> _invited_members;
     ChannelModes _modes;
+    
+    std::string _topicSetter;
+    std::string _topicSetTime;    
 };
 
 #endif
