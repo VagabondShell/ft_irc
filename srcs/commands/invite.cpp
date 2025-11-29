@@ -65,7 +65,7 @@ void Server::handleInviteCommand(Client *client, std::vector<std::string> args)
         return;
     }
     channel_it->second->InviteMember(target);
-    std::string content = client->GetNickName() + " " + target + " " + channel;
+    std::string content =" " + target + " " + channel;
     client->SendReply("341", content);
     Client *targetClient = GetClientByNick(target);
     if (targetClient)
