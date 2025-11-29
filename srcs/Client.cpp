@@ -185,19 +185,7 @@ void Client::leftAllchannels()
         mychannles.erase(it++);
     }
 }
-void Client::leftAllInvitedChannels()
-{
-    std::set<Channel*>::iterator it =Invited_channel.begin();
-    while (it != Invited_channel.end())
-    {
-        Channel *chan = *it;
-        chan->RemoveMember(this);
-        if (chan->GetClientCount() == 0)
-            this->_ServerPtr->remove_channel(chan->GetName());
-        
-          Invited_channel.erase(it++);
-    }
-}
+
 std::vector<std::string> Client::listOfInvitedChannles()
 {
     std::vector<std::string> list;
@@ -216,4 +204,8 @@ void Client::addChannel(Channel *channel)
 void Client::addInvitedChannel(Channel *channel)
 {
   Invited_channel.insert(channel);
+}
+void Client::removeInvitedchannel(Channel *channel)
+{
+  Invited_channel.erase(channel);
 }

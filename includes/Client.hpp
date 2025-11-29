@@ -31,8 +31,8 @@ public:
   const std::string & GetIpAddress() const ;
   void addChannel(Channel *channel);
   void addInvitedChannel(Channel *channel);
+  void removeInvitedchannel(Channel *channel);
   void leftAllchannels();
-  void leftAllInvitedChannels();
   std::vector<std::string>listOfInvitedChannles();
   Server* GetServerPtr() const;
 

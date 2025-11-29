@@ -6,10 +6,10 @@ void PrintIinviteLIst(Client *client)
     std::string message;
     for (size_t i = 0; i < list.size(); i++)
     {
-        message = client->GetNickName() + " " + list[i];
+        message =" " + list[i];
         client->SendReply("336", message);
     }
-    client->SendReply("337", client->GetNickName() + " :End of INVITE list");
+    client->SendReply("337"," :End of INVITE list");
 }
 void Server::handleInviteCommand(Client *client, std::vector<std::string> args)
 {

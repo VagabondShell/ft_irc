@@ -115,6 +115,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                 {
                     channel_it->second->AddMember(client);
                     channel_it->second->UninviteMember(client->GetNickName());
+                    client->removeInvitedchannel(channel_it->second);
                     client->addChannel(channel_it->second);
                     respone_msg(client,prefix,channels[i],channel_it->second);
                     continue;
@@ -140,6 +141,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                  channel_it->second->AddMember(client);
                  client->addChannel(channel_it->second);
                  channel_it->second->UninviteMember(client->GetNickName());
+                 client->removeInvitedchannel(channel_it->second);
                  respone_msg(client,prefix,channels[i],channel_it->second);
             }
        }
