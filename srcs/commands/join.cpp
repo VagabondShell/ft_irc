@@ -30,7 +30,7 @@ std::string channel_members(Channel const &chan)
     std::string list = "";
     for (it = members.begin(); it != members.end(); ++it)
     {
-        Client* c = it->second;  // Access the Client* from the map pair
+        Client* c = it->second; 
         if (chan.IsMember(c))
         {
             if (chan.IsOperator(c))
@@ -48,11 +48,12 @@ void respone_msg(Client *client,std::string prefix,std::string channel_name,Chan
 
     if(client) 
     {
+        //to do topic and 332 333
         client->GetOutBuffer().append((prefix+" JOIN " + channel_name + "\r\n"));
+        client->SetPollOut(true);
         client->SendReply("353","= " + channel_name+": " + channel_members(*channel));
         client->SendReply("366",channel_name+" :End of /NAMES list.");
-        client->SetPollOut(true);
-        channel->Broadcast((prefix + " JOIN " + channel_name + "\r\n"),client);
+        channel->Broadcast((prefix + " JOIN " + channel_name),client);
     }
 }
 bool check_channel(std::string channel)
@@ -60,8 +61,8 @@ bool check_channel(std::string channel)
     if (channel.empty() || channel.size() > 200 ||
         (channel[0] != '#' && channel[0] != '&') ||
         channel.find('\t') != std::string::npos)
-        return true;
-    return false;
+        return false;
+    return true;
 }
 
 void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
@@ -88,7 +89,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
         keys = genrateNames_keys(*it);
     for (size_t i = 0; i < channels.size(); i++)
     {
-        if (check_channel(channels[i]))
+        if (!check_channel(channels[i]))
         {
             content = channels[i] +" :No such channel";
             client->SendReply("403", content);
