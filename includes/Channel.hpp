@@ -49,6 +49,11 @@ public:
     const ChannelModes& GetModes() const;
     void Broadcast(const std::string& message, Client* sender = NULL);
     
+    void setTopicSetter(const std::string& setter);
+    const std::string& getTopicSetter() const;
+    void setTopicSetTime(const std::string& time);
+    const std::string& getTopicSetTime() const;
+    
 private:
     std::string _name;
     std::string _topic;
