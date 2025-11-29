@@ -51,6 +51,7 @@ public:
   // void initialBot();
   time_t getStartTime() const ;
   void remove_channel(std::string channelName);
+  Client *GetClientByNick(std::string nick);
   std::map<std::string, Client *> GetNickNames() const;
 
 private:

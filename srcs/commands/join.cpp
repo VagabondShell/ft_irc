@@ -111,14 +111,15 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                 ChannelModes Mods = channel_it->second->GetModes();
                 if(channel_it->second->IsMember(client))
                     continue;
-                if(channel_it->second->IsInvited(client))
+                if(channel_it->second->IsInvited(client->GetNickName()))
                 {
                     channel_it->second->AddMember(client);
+                    channel_it->second->UninviteMember(client->GetNickName());
                     client->addChannel(channel_it->second);
                     respone_msg(client,prefix,channels[i],channel_it->second);
                     continue;
                 }
-                if(Mods.inviteOnly && !channel_it->second->IsInvited(client))
+                if(Mods.inviteOnly && !channel_it->second->IsInvited(client->GetNickName()))
                 {
                      client->SendReply("473",channels[i]+" :Cannot join channel, you must be invited (+i)");
                     continue;
@@ -138,6 +139,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                 }
                  channel_it->second->AddMember(client);
                  client->addChannel(channel_it->second);
+                 channel_it->second->UninviteMember(client->GetNickName());
                  respone_msg(client,prefix,channels[i],channel_it->second);
             }
        }

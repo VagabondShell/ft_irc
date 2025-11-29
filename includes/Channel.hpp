@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 #include <vector>
-
+#include <set>
 class Client;
 
 struct ChannelModes {
@@ -42,9 +42,9 @@ public:
     void RemoveOperator(Client* client);
     int GetClientCount();
     const std::map<std::string, Client*>& GetMembers() const;
-    void InviteMember(Client* client);
-    void UninviteMember(Client* client);
-    bool IsInvited(Client* client) const;
+    void InviteMember(std::string nick);
+    void UninviteMember(std::string nick);
+    bool IsInvited(std::string nick) const;
     ChannelModes& GetModes();
     const ChannelModes& GetModes() const;
     void Broadcast(const std::string& message, Client* sender = NULL);
@@ -54,7 +54,7 @@ private:
     std::string _topic;
     std::map<std::string, Client*> _members;
     std::map<std::string, Client*> _operators;
-    std::map<std::string, Client*> _invited_members;
+    std::set<std::string> _invited_members;
     ChannelModes _modes;
 };
 

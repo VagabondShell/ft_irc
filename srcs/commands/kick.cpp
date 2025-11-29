@@ -9,9 +9,9 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
     }
     std::string channel;
     std::vector<std::string> users;
-    std::string comment = ":default";
+    std::string comment = ":because i said so";
     std::map<std::string, Channel *>::iterator channel_it;
-    std::string prefix = ":" + client->GetNickName() + "!~" + client->GetUserName() +
+    std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() +
                          "@" + client->GetIpAddress();
     channel = args[1];
     users = generateElements(args[2]);
@@ -31,15 +31,14 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
         client->SendReply("476", content);
         return;
     }
-    if (!channel_it->second->IsOperator(client))
-    {
-        std::string content = channel + " :You're not channel operator";
-        client->SendReply("482", content);
-        return;
-    }
-
     for (size_t i = 0; i < users.size(); i++)
     {
+        if (!channel_it->second->IsOperator(client))
+        {
+            std::string content = channel + " :You're not channel operator";
+            client->SendReply("482", content);
+            return;
+        }
         if (!is_active(users[i]))
         {
             std::string content = users[i] + " :No such nick";
@@ -52,8 +51,8 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
             client->SendReply("441", content);
             return;
         }
-        channel_it->second->RemoveMemberByNick(users[i]);
         channel_it->second->Broadcast((prefix + " KICK " + channel + " " + users[i] + " " + comment), NULL);
+        channel_it->second->RemoveMemberByNick(users[i]);
         if (channel_it->second->GetClientCount() == 0)
             remove_channel(channel_it->second->GetName());
     }

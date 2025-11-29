@@ -60,20 +60,16 @@ const std::map<std::string, Client*>& Channel::GetMembers() const {
     return _members;
 }
 
-void Channel::InviteMember(Client* client) {
-    _invited_members[client->GetNickName()] = client;
+void Channel::InviteMember(std::string nick) {
+    _invited_members.insert(nick);
 }
 
-void Channel::UninviteMember(Client* client) {
-    _invited_members.erase(client->GetNickName());
+void Channel::UninviteMember(std::string nick) {
+    _invited_members.erase(nick);
 }
 
-bool Channel::IsInvited(Client* client) const {
-    for (std::map<std::string, Client*>::const_iterator it = _invited_members.begin(); it != _invited_members.end(); ++it) {
-        if (it->second == client)
-            return true;
-    }
-    return false;
+bool Channel::IsInvited(std::string nick) const {
+    return _invited_members.find(nick)!= _invited_members.end();
 }
 
 ChannelModes& Channel::GetModes() {
