@@ -1,6 +1,6 @@
 #include "../../includes/Server.hpp"
 
-std::vector<std::string> genrateNames_keys(std::string str)
+std::vector<std::string> generateElements(std::string str)
 {
     std::vector<std::string> elmnts;
     std::string elm = "";
@@ -83,10 +83,10 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
     std::vector<std::string>::iterator it;
     std::map<std::string,Channel *>::iterator channel_it;
     it = args.begin() + 1;
-    channels = genrateNames_keys(*it);
+    channels = generateElements(*it);
     it++;
     if (it != args.end())
-        keys = genrateNames_keys(*it);
+        keys = generateElements(*it);
     for (size_t i = 0; i < channels.size(); i++)
     {
         if (!check_channel(channels[i]))
