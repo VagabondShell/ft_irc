@@ -280,6 +280,7 @@ void Server::disconnectClient(int current_fd) {
         << " Nickname: " << (clientToDelete->GetNickName().empty() ? "(Unregistered)" 
         : clientToDelete->GetNickName()) << " | FD: " << current_fd << std::endl;
         clientToDelete->leftAllchannels();
+        clientToDelete->leftAllInvitedChannels();
     _nicknames.erase(clientToDelete->GetNickName());
    
     close(current_fd);
@@ -334,4 +335,12 @@ void Server::run() {
 void Server::remove_channel(std::string channelName)
 {
     _channels.erase(channelName);
+}
+Client *Server::GetClientByNick(std::string nick)
+{
+    std::map<std::string, Client*>::iterator it = _nicknames.find(nick);
+    
+    if (it != _nicknames.end())
+        return it->second;
+    return NULL; 
 }

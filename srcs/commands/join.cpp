@@ -1,6 +1,6 @@
 #include "../../includes/Server.hpp"
 
-std::vector<std::string> genrateNames_keys(std::string str)
+std::vector<std::string> generateElements(std::string str)
 {
     std::vector<std::string> elmnts;
     std::string elm = "";
@@ -22,25 +22,24 @@ std::vector<std::string> genrateNames_keys(std::string str)
 
     return elmnts;
 }
-std::string channel_members(Channel const &chan )
+std::string channel_members(Channel const &chan)
 {
-    const std::set<Client*>& members = chan.GetMembers();
+    const std::map<std::string, Client*>& members = chan.GetMembers();
 
-    std::set<Client*>::const_iterator it;
-    std::string list="";
+    std::map<std::string, Client*>::const_iterator it;
+    std::string list = "";
     for (it = members.begin(); it != members.end(); ++it)
     {
-        Client* c = *it;
-        if(chan.IsMember(c))
+        Client* c = it->second; 
+        if (chan.IsMember(c))
         {
-            if(chan.IsOperator(c))
-        {
-            list+= "@"+c->GetNickName()+" ";
+            if (chan.IsOperator(c))
+            {
+                list += "@" + c->GetNickName() + " ";
+            }
+            else
+                list += c->GetNickName() + " ";
         }
-        else
-            list += c->GetNickName()+" ";
-        }
-        
     }
     return list;
 }
@@ -49,11 +48,12 @@ void respone_msg(Client *client,std::string prefix,std::string channel_name,Chan
 
     if(client) 
     {
+        //to do topic and 332 333
         client->GetOutBuffer().append((prefix+" JOIN " + channel_name + "\r\n"));
+        client->SetPollOut(true);
         client->SendReply("353","= " + channel_name+": " + channel_members(*channel));
         client->SendReply("366",channel_name+" :End of /NAMES list.");
-        client->SetPollOut(true);
-        channel->Broadcast((prefix + " JOIN " + channel_name + "\r\n"),client);
+        channel->Broadcast((prefix + " JOIN " + channel_name),client);
     }
 }
 bool check_channel(std::string channel)
@@ -61,8 +61,8 @@ bool check_channel(std::string channel)
     if (channel.empty() || channel.size() > 200 ||
         (channel[0] != '#' && channel[0] != '&') ||
         channel.find('\t') != std::string::npos)
-        return true;
-    return false;
+        return false;
+    return true;
 }
 
 void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
@@ -83,13 +83,13 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
     std::vector<std::string>::iterator it;
     std::map<std::string,Channel *>::iterator channel_it;
     it = args.begin() + 1;
-    channels = genrateNames_keys(*it);
+    channels = generateElements(*it);
     it++;
     if (it != args.end())
-        keys = genrateNames_keys(*it);
+        keys = generateElements(*it);
     for (size_t i = 0; i < channels.size(); i++)
     {
-        if (check_channel(channels[i]))
+        if (!check_channel(channels[i]))
         {
             content = channels[i] +" :No such channel";
             client->SendReply("403", content);
@@ -111,14 +111,15 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                 ChannelModes Mods = channel_it->second->GetModes();
                 if(channel_it->second->IsMember(client))
                     continue;
-                if(channel_it->second->IsInvited(client))
+                if(channel_it->second->IsInvited(client->GetNickName()))
                 {
                     channel_it->second->AddMember(client);
+                    channel_it->second->UninviteMember(client->GetNickName());
                     client->addChannel(channel_it->second);
                     respone_msg(client,prefix,channels[i],channel_it->second);
                     continue;
                 }
-                if(Mods.inviteOnly && !channel_it->second->IsInvited(client))
+                if(Mods.inviteOnly && !channel_it->second->IsInvited(client->GetNickName()))
                 {
                      client->SendReply("473",channels[i]+" :Cannot join channel, you must be invited (+i)");
                     continue;
@@ -138,6 +139,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                 }
                  channel_it->second->AddMember(client);
                  client->addChannel(channel_it->second);
+                 channel_it->second->UninviteMember(client->GetNickName());
                  respone_msg(client,prefix,channels[i],channel_it->second);
             }
        }

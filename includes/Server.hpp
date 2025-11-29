@@ -51,6 +51,7 @@ public:
   // void initialBot();
   time_t getStartTime() const ;
   void remove_channel(std::string channelName);
+  Client *GetClientByNick(std::string nick);
   std::map<std::string, Client *> GetNickNames() const;
   
   void execute_modes(Client* client, const std::string& channelName, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams);
@@ -79,5 +80,6 @@ private:
 void processBotCommand(Client * client, std::string & message);
 std::vector<std::string> split_string_to_vector(const std::string &input_string,
                                                 char delimiter);
-
+                                                bool check_channel(std::string channel);
+                                                std::vector<std::string> generateElements(std::string str);
 #endif
