@@ -138,7 +138,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                     }
                 }
                 if(Mods.userLimitSet && channel_it->second->GetMembers().size() >= Mods.userLimit)
-                {
+                {   
                     client->SendReply("471",":Cannot join channel, Channel is full (+l)");
                     continue;
                 }
