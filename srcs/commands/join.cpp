@@ -48,9 +48,13 @@ void respone_msg(Client *client,std::string prefix,std::string channel_name,Chan
 
     if(client) 
     {
-        //to do topic and 332 333
         client->GetOutBuffer().append((prefix+" JOIN " + channel_name + "\r\n"));
         client->SetPollOut(true);
+        if(!channel->GetTopic().empty())
+        {
+            client->SendReply("332",channel_name+ " " + channel->GetTopic());
+            client->SendReply("333",channel_name+" "+ channel->getTopicSetter() +" " + channel->getTopicSetTime());
+        }
         client->SendReply("353","= " + channel_name+": " + channel_members(*channel));
         client->SendReply("366",channel_name+" :End of /NAMES list.");
         channel->Broadcast((prefix + " JOIN " + channel_name),client);
