@@ -33,6 +33,7 @@ public:
   void addInvitedChannel(Channel *channel);
   void removeInvitedchannel(Channel *channel);
   void leftAllchannels();
+  const std::set<Channel*>& GetClientChannels() const;
   std::vector<std::string>listOfInvitedChannles();
   Server* GetServerPtr() const;
 

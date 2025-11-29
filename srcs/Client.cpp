@@ -172,6 +172,7 @@ void Client::ProcessAndExtractCommands() {
       pos_found = _ReadBuffer.find("\n");
   }
 }
+
 void Client::leftAllchannels()
 {
     std::set<Channel*>::iterator it = mychannles.begin();
@@ -208,4 +209,8 @@ void Client::addInvitedChannel(Channel *channel)
 void Client::removeInvitedchannel(Channel *channel)
 {
   Invited_channel.erase(channel);
+}
+const std::set<Channel*>& Client::GetClientChannels() const
+{
+  return mychannles;
 }
