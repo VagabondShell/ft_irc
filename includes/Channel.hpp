@@ -4,6 +4,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <sstream>
 
 class Client;
 
@@ -22,6 +23,23 @@ struct ChannelModes {
           userLimitSet(false),
           userLimit(0)
     {}
+
+    std::string toString() const
+    {
+        std::string flags;
+        std::string params;
+        if (inviteOnly) flags += "i";
+        if (topicOpOnly) flags += "t";
+        if (passwordSet) { flags += "k"; params += "password_Hided"; }
+        if (userLimitSet) {
+            flags += "l";
+            std::ostringstream oss;
+            oss << userLimit;
+            params += " " + oss.str();
+        }
+        if (flags.empty()) return "";
+        return std::string("+") + flags + params;
+    }
 };
 
 class Channel {

@@ -49,17 +49,17 @@ void create_modes(const std::vector<std::string>& args, std::vector<std::string>
 }
 
 
-void Server::execute_modes(Client* client, const std::string& channelName, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams) 
+bool Server::execute_modes(Client* client, const std::string& channelName, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams) 
 {
     Channel* channel = _channels[channelName];
     if (!channel)
-        return;
+        return false;
     size_t paramIndex = 0;
 
 
     if (!channel->IsOperator(client)) {
         client->SendReply("482", channelName + " :You're not channel operator");
-        return;
+        return false;
     }
 
     for (size_t i = 0; i < modes.size(); ++i) 
@@ -86,7 +86,7 @@ void Server::execute_modes(Client* client, const std::string& channelName, const
                 if (modeParams[paramIndex].empty()) 
                 {
                     client->SendReply("461", "MODE +k :Not enough parameters");
-                    return;
+                    return false;
                 }
                 std::string new_pass = modeParams[paramIndex++];
                 channel->GetModes().passwordSet = true;
@@ -105,12 +105,17 @@ void Server::execute_modes(Client* client, const std::string& channelName, const
                 if (modeParams[paramIndex].empty()) 
                 {
                     client->SendReply("461", "MODE +l :Not enough parameters");
-                    return;
+                    return false;
                 }
 
                 // size_t limit = std::stoull(modeParams[paramIndex++]);
-
+                
                 size_t limit = atoi(modeParams[paramIndex++].c_str());
+                if (limit <= 0) 
+                {
+                    client->SendReply("461", "MODE +l :Invalid limit parameter");
+                    return false;
+                }
                 channel->GetModes().userLimitSet = true;
                 channel->GetModes().userLimit = limit;
             } 
@@ -152,18 +157,38 @@ void Server::execute_modes(Client* client, const std::string& channelName, const
                 channel->RemoveOperator(target);
         }
     }
+    return true;
 }
 
 
-
+std::string filterValidModes(const std::string& modeStr) {
+    std::string result;
+    for (size_t i = 0; i < modeStr.size(); ++i) {
+        char c = modeStr[i];
+        if (c == '+' || c == '-' || c == 'i' || c == 'k' || c == 'l' || c == 't' || c == 'o') {
+            result += c;
+        }
+    }
+    return result;
+}
 
 void Server::handleModeCommand(Client *client, std::vector<std::string> args)
 {
-    if (args.size() < 3) {
+    if (args.size() < 2) {
         client->SendReply("461", "MODE :Not enough parameters");
         return;
     }
-
+    if (args.size() == 2) {
+        std::string channelName = args[1];
+        if (_channels.find(channelName) == _channels.end()) {
+            client->SendReply("403", channelName + " :No such channel");
+            return;
+        }
+        Channel* channel = _channels[channelName];
+        std::string modes = channel->GetModes().toString();
+        client->SendReply("324", channelName + " " + modes);
+        return;
+    }
     std::string target = args[1];
     std::string modes = args[2];
 
@@ -181,12 +206,17 @@ void Server::handleModeCommand(Client *client, std::vector<std::string> args)
 
     }
     else 
+    {
+        client->SendReply("403", target + " :No such channel");
         return;
+    }
     
     create_modes(args, modes_vec, parms, client);
-    execute_modes(client, target, modes_vec, parms);
-    std::string notify = ":ft_irc.local MODE " + target + " " + modes;
-    _channels[target]->Broadcast(notify, NULL);
+    if (execute_modes(client, target, modes_vec, parms))
+    {
+        std::string notify = ":ft_irc.local MODE " + target + " " + filterValidModes(modes);
+        _channels[target]->Broadcast(notify, NULL);
+    }   
 }
 
 

@@ -53,7 +53,7 @@ public:
   void remove_channel(std::string channelName);
   std::map<std::string, Client *> GetNickNames() const;
   
-  void execute_modes(Client* client, const std::string& channelName, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams);
+  bool execute_modes(Client* client, const std::string& channelName, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams);
 
 private:
 
