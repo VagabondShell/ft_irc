@@ -5,7 +5,7 @@ RM        = rm -rf
 
 SRCS_FILES      = main.cpp Server.cpp Client.cpp AuthCommands.cpp Channel.cpp commands/mode.cpp \
 				  commands/privmsg.cpp commands/join.cpp commands/topic.cpp\
-				  commands/kick.cpp commands/invite.cpp
+				  commands/kick.cpp commands/invite.cpp commands/part.cpp
 				  
 SRCS 		= $(addprefix srcs/, $(SRCS_FILES))
 

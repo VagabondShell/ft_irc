@@ -14,6 +14,7 @@ Server::Server(const int port, const std::string password)
     this->_commandMap["INVITE"] = CMD_INVITE;
     this->_commandMap["KICK"] = CMD_KICK;
     this->_commandMap["TOPIC"] = CMD_TOPIC;
+    this->_commandMap["PART"] = CMD_PART;
 
     _listenerFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -266,6 +267,9 @@ void Server::commandDispatcher(Client *client, std::string commandLine) {
             break;
         case CMD_MODE:
             handleModeCommand(client, splitedCommand);
+            break;
+        case CMD_PART:
+            handlePartCommand(client, splitedCommand);
             break;
         default:
             break;

@@ -47,6 +47,7 @@ public:
   void handleInviteCommand(Client *client, std::vector<std::string> args);
   void handleKickCommand(Client *client, std::vector<std::string> args);
   void handleTopicCommand(Client *client, std::vector<std::string> args);
+  void handlePartCommand(Client *client, std::vector<std::string> args);
   bool is_active(std::string);
   // void initialBot();
   time_t getStartTime() const ;

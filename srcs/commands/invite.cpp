@@ -41,7 +41,7 @@ void Server::handleInviteCommand(Client *client, std::vector<std::string> args)
     }
     if (!channel_it->second->IsMember(client))
     {
-        std::string content = client->GetNickName() + " " + channel + " :You're not on that channel";
+        std::string content =channel + " :You're not on that channel";
         client->SendReply("442", content);
         return;
     }
@@ -54,7 +54,7 @@ void Server::handleInviteCommand(Client *client, std::vector<std::string> args)
     }
     if (channel_it->second->IsMemberByNick(target))
     {
-        std::string content = client->GetNickName() + " " + target + " " + channel + " :is already on channel";
+        std::string content = target + " " + channel + " :is already on channel";
         client->SendReply("443", content);
         return;
     }
