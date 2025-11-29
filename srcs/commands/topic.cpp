@@ -55,9 +55,6 @@ void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
   std::stringstream tmp;
   tmp << now;
   channel->setTopicSetTime(tmp.str());
-
-
-
   std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() + "@" + client->GetIpAddress();
   std::string topicMsg = prefix + " TOPIC " + channelName + " :" + newTopic;
   channel->Broadcast(topicMsg, NULL);

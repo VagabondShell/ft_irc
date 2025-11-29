@@ -2,10 +2,11 @@
 #define CHANNEL_HPP
 
 #include <string>
-#include <set>
+#include <map>
 #include <vector>
 #include <sstream>
 
+#include <set>
 class Client;
 
 struct ChannelModes {
@@ -46,37 +47,38 @@ class Channel {
 public:
     Channel(const std::string& name);
 
-
     const std::string& GetName() const;
     const std::string& GetTopic() const;
     void SetTopic(const std::string& topic);
 
     bool IsMember(Client* client) const;
+    bool IsMemberByNick(std::string nick) const;
+    void RemoveMemberByNick(std::string nick);
     bool IsOperator(Client* client) const;
     void AddMember(Client* client);
     void RemoveMember(Client* client);
     void AddOperator(Client* client);
     void RemoveOperator(Client* client);
     int GetClientCount();
-    const std::set<Client*>& GetMembers() const;
-    void InviteMember(Client* client);
-    void UninviteMember(Client* client);
-    bool IsInvited(Client* client) const;
+    const std::map<std::string, Client*>& GetMembers() const;
+    void InviteMember(std::string nick);
+    void UninviteMember(std::string nick);
+    bool IsInvited(std::string nick) const;
     ChannelModes& GetModes();
     const ChannelModes& GetModes() const;
     void Broadcast(const std::string& message, Client* sender = NULL);
-
+    
     void setTopicSetter(const std::string& setter);
     const std::string& getTopicSetter() const;
     void setTopicSetTime(const std::string& time);
-    const std::string& getTopicSetTime() const;    
+    const std::string& getTopicSetTime() const;
     
 private:
     std::string _name;
     std::string _topic;
-    std::set<Client*> _members;
-    std::set<Client*> _operators;
-    std::set<Client*> _invited_members;
+    std::map<std::string, Client*> _members;
+    std::map<std::string, Client*> _operators;
+    std::set<std::string> _invited_members;
     ChannelModes _modes;
     
     std::string _topicSetter;

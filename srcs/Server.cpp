@@ -335,3 +335,11 @@ void Server::remove_channel(std::string channelName)
 {
     _channels.erase(channelName);
 }
+Client *Server::GetClientByNick(std::string nick)
+{
+    std::map<std::string, Client*>::iterator it = _nicknames.find(nick);
+    
+    if (it != _nicknames.end())
+        return it->second;
+    return NULL; 
+}
