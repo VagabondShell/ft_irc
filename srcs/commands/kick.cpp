@@ -58,6 +58,7 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
         {
             Channel *channelToDelete = channel_it->second;
             remove_channel(channel_it->second->GetName());
+            client->removeMyChannel(channelToDelete);
             delete channelToDelete;
         }
     }
