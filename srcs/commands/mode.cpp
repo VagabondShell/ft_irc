@@ -107,8 +107,6 @@ bool Server::execute_modes(Client* client, const std::string& channelName, const
                     client->SendReply("461", "MODE +l :Not enough parameters");
                     return false;
                 }
-
-                // size_t limit = std::stoull(modeParams[paramIndex++]);
                 
                 size_t limit = atoi(modeParams[paramIndex++].c_str());
                 if (limit <= 0) 
@@ -130,7 +128,7 @@ bool Server::execute_modes(Client* client, const std::string& channelName, const
             if (modeParams[paramIndex].empty())
             {
                 client->SendReply("461", "MODE +o/-o :Not enough parameters");
-                continue;
+                return false;
             }
 
             std::string tobe_operator = modeParams[paramIndex++];
@@ -140,7 +138,7 @@ bool Server::execute_modes(Client* client, const std::string& channelName, const
             if (itClient == _nicknames.end())
             {
                 client->SendReply("401", tobe_operator + " :No such nick");
-                continue;
+                return false;
             }
 
             Client* target = itClient->second;
@@ -148,7 +146,7 @@ bool Server::execute_modes(Client* client, const std::string& channelName, const
             if (!channel->IsMember(target))
             {
                 client->SendReply("441", tobe_operator + " " + channelName + " :They aren’t on that channel");
-                continue;
+                return false;
             }
 
             if (set_mode)
