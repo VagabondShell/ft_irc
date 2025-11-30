@@ -181,8 +181,10 @@ void Client::leftAllchannels()
         Channel *chan = *it;
         chan->RemoveMember(this);
         if (chan->GetClientCount() == 0)
+        {
             this->_ServerPtr->remove_channel(chan->GetName());
-        
+            delete chan;
+        }
         mychannles.erase(it++);
     }
 }
@@ -209,6 +211,10 @@ void Client::addInvitedChannel(Channel *channel)
 void Client::removeInvitedchannel(Channel *channel)
 {
   Invited_channel.erase(channel);
+}
+void Client::removeMyChannel(Channel *channel)
+{
+  mychannles.erase(channel);
 }
 const std::set<Channel*>& Client::GetClientChannels() const
 {

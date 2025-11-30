@@ -3,6 +3,7 @@
 void Server::handlePartCommand(Client *client, std::vector<std::string> args)
 {
     std::map<std::string, Channel *>::iterator channel_it;
+    std::string reason="";
     std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() +
     "@" + client->GetIpAddress();
     if (args.size() < 2)
@@ -12,7 +13,10 @@ void Server::handlePartCommand(Client *client, std::vector<std::string> args)
     }
     std::vector<std::string> channels = generateElements(args[1]);
     if (args.size() >= 3)
-        std::string reason = args[2];
+    {
+        reason =" :";
+        reason += args[2];
+    }
     for (size_t i = 0; i < channels.size(); i++)
     {
         channel_it = _channels.find(channels[i]);
@@ -26,11 +30,16 @@ void Server::handlePartCommand(Client *client, std::vector<std::string> args)
         {
             std::string content = channels[i] + " :You're not on that channel";
             client->SendReply("442", content);
-            return;
+            continue;
         }
-        channel_it->second->Broadcast(prefix +" PART "+channels[i]);
+        channel_it->second->Broadcast(prefix +" PART "+channels[i]+reason);
         channel_it->second->RemoveMember(client);
         if(channel_it->second->GetClientCount() == 0)
-            _channels.erase(channel_it->second->GetName());
+        {
+            Channel* channelToDelete = channel_it->second;
+            client->removeMyChannel(channelToDelete);
+            _channels.erase(channels[i]);
+            delete channelToDelete;
+        }
     }
 }

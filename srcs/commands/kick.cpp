@@ -31,29 +31,35 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
         client->SendReply("476", content);
         return;
     }
+    if (!channel_it->second->IsOperator(client))
+    {
+        std::string content = channel + " :You're not channel operator";
+        client->SendReply("482", content);
+        return;
+    }
     for (size_t i = 0; i < users.size(); i++)
     {
-        if (!channel_it->second->IsOperator(client))
-        {
-            std::string content = channel + " :You're not channel operator";
-            client->SendReply("482", content);
-            return;
-        }
+
         if (!is_active(users[i]))
         {
             std::string content = users[i] + " :No such nick";
             client->SendReply("401", content);
-            return;
+            continue;
         }
         if (!channel_it->second->IsMemberByNick(users[i]))
         {
             std::string content = users[i] + " " + channel + " :They aren't on that channel";
             client->SendReply("441", content);
-            return;
+            continue;
         }
         channel_it->second->Broadcast((prefix + " KICK " + channel + " " + users[i] + " " + comment), NULL);
         channel_it->second->RemoveMemberByNick(users[i]);
         if (channel_it->second->GetClientCount() == 0)
+        {
+            Channel *channelToDelete = channel_it->second;
             remove_channel(channel_it->second->GetName());
+            client->removeMyChannel(channelToDelete);
+            delete channelToDelete;
+        }
     }
 }
