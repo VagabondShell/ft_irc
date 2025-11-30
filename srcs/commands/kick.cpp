@@ -16,8 +16,11 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
     channel = args[1];
     users = generateElements(args[2]);
     if (args.size() > 3)
-        comment = args[3];
-
+    {
+        comment=":";
+        comment += args[3];
+    }
+    
     channel_it = _channels.find(channel);
     if (channel_it == _channels.end() && check_channel(channel))
     {

@@ -65,6 +65,7 @@ public:
     void UninviteMember(std::string nick);
     bool IsInvited(std::string nick) const;
     ChannelModes& GetModes();
+     
     const ChannelModes& GetModes() const;
     void Broadcast(const std::string& message, Client* sender = NULL);
     
