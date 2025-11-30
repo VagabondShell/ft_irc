@@ -337,6 +337,7 @@ void Server::run() {
 
 void Server::remove_channel(std::string channelName)
 {
+    
     _channels.erase(channelName);
 }
 Client *Server::GetClientByNick(std::string nick)

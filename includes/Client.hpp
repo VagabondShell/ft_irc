@@ -31,6 +31,7 @@ public:
   const std::string & GetIpAddress() const ;
   void addChannel(Channel *channel);
   void addInvitedChannel(Channel *channel);
+  void removeMyChannel(Channel *channel);
   void removeInvitedchannel(Channel *channel);
   void leftAllchannels();
   const std::set<Channel*>& GetClientChannels() const;
