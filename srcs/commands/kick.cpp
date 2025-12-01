@@ -17,21 +17,15 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
     users = generateElements(args[2]);
     if (args.size() > 3)
     {
-        comment=":";
+        comment=" :";
         comment += args[3];
     }
     
     channel_it = _channels.find(channel);
-    if (channel_it == _channels.end() && check_channel(channel))
+    if (channel_it == _channels.end())
     {
         std::string content = channel + " :No such channel";
         client->SendReply("403", content);
-        return;
-    }
-    else if (!check_channel(channel))
-    {
-        std::string content = channel + " :Bad Channel Mask";
-        client->SendReply("476", content);
         return;
     }
     if (!channel_it->second->IsOperator(client))
