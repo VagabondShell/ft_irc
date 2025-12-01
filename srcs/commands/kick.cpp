@@ -36,7 +36,6 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
     }
     for (size_t i = 0; i < users.size(); i++)
     {
-
         if (!is_active(users[i]))
         {
             std::string content = users[i] + " :No such nick";
