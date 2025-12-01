@@ -9,7 +9,7 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
     }
     std::string channel;
     std::vector<std::string> users;
-    std::string comment = ":because i said so";
+    std::string comment = " :because i said so";
     std::map<std::string, Channel *>::iterator channel_it;
     std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() +
                          "@" + client->GetIpAddress();
