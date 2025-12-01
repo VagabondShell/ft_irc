@@ -48,7 +48,7 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
             client->SendReply("441", content);
             continue;
         }
-        channel_it->second->Broadcast((prefix + " KICK " + channel + " " + users[i] + " " + comment), NULL);
+        channel_it->second->Broadcast((prefix + " KICK " + channel + " " + users[i] + comment), NULL);
         channel_it->second->RemoveMemberByNick(users[i]);
         if (channel_it->second->GetClientCount() == 0)
         {
