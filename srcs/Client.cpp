@@ -80,7 +80,7 @@ bool Client::GetUserState() const{
   return _UserSet;
 }
 
-const std::string Client::GetNickName() {
+const std::string Client::GetNickName() const {
   return _NickName; 
 }
 

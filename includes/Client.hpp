@@ -26,7 +26,6 @@ public:
   bool GetUserState() const;
   bool GetNickNameState() const;
   int GetFd() const;
-  const std::string GetNickName() ;
   const std::string GetUserName() const;
   const std::string & GetIpAddress() const ;
   void addChannel(Channel *channel);
