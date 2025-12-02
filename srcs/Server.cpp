@@ -14,6 +14,7 @@ Server::Server(const int port, const std::string password)
     this->_commandMap["INVITE"] = CMD_INVITE;
     this->_commandMap["KICK"] = CMD_KICK;
     this->_commandMap["TOPIC"] = CMD_TOPIC;
+    this->_commandMap["PART"] = CMD_PART;
 
     _listenerFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -267,6 +268,9 @@ void Server::commandDispatcher(Client *client, std::string commandLine) {
         case CMD_MODE:
             handleModeCommand(client, splitedCommand);
             break;
+        case CMD_PART:
+            handlePartCommand(client, splitedCommand);
+            break;
         default:
             break;
     }
@@ -333,5 +337,14 @@ void Server::run() {
 
 void Server::remove_channel(std::string channelName)
 {
+    
     _channels.erase(channelName);
+}
+Client *Server::GetClientByNick(std::string nick)
+{
+    std::map<std::string, Client*>::iterator it = _nicknames.find(nick);
+    
+    if (it != _nicknames.end())
+        return it->second;
+    return NULL; 
 }

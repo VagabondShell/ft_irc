@@ -17,46 +17,60 @@ void Channel::SetTopic(const std::string& topic) {
 }
 
 bool Channel::IsMember(Client* client) const {
-    return _members.find(client) != _members.end();
+    for (std::map<std::string, Client*>::const_iterator it = _members.begin(); it != _members.end(); ++it) {
+        if (it->second == client)
+            return true;
+    }
+    return false;
+}
+bool Channel::IsMemberByNick(std::string nick) const {
+   return _members.find(nick) != _members.end();
 }
 
 bool Channel::IsOperator(Client* client) const {
-    return _operators.find(client) != _operators.end();
+    for (std::map<std::string, Client*>::const_iterator it = _operators.begin(); it != _operators.end(); ++it) {
+        if (it->second == client)
+            return true;
+    }
+    return false;
 }
 
 void Channel::AddMember(Client* client) {
-    _members.insert(client);
+    _members[client->GetNickName()] = client;
 }
 
 void Channel::RemoveMember(Client* client) {
-    _members.erase(client);
-    _operators.erase(client);
+    _members.erase(client->GetNickName());
+    _operators.erase(client->GetNickName());
 }
-
+void Channel::RemoveMemberByNick(std::string nick) {
+    _members.erase(nick);
+    _operators.erase(nick);
+}
 void Channel::AddOperator(Client* client) {
     if (IsMember(client))
-        _operators.insert(client);
+        _operators[client->GetNickName()] = client;
 }
 
 void Channel::RemoveOperator(Client* client) {
-    _operators.erase(client);
+    _operators.erase(client->GetNickName());
 }
 
-const std::set<Client*>& Channel::GetMembers() const {
+const std::map<std::string, Client*>& Channel::GetMembers() const {
     return _members;
 }
-void Channel::InviteMember(Client* client) {
-    _invited_members.insert(client);
+
+void Channel::InviteMember(std::string nick) {
+    _invited_members.insert(nick);
 }
 
-void Channel::UninviteMember(Client* client) {
-    _invited_members.erase(client);
+void Channel::UninviteMember(std::string nick) {
+    _invited_members.erase(nick);
 }
 
-bool Channel::IsInvited(Client* client) const {
-    return _invited_members.find(client) != _invited_members.end();
+bool Channel::IsInvited(std::string nick) const {
+    return _invited_members.find(nick)!= _invited_members.end();
 }
-
 
 ChannelModes& Channel::GetModes() {
     return _modes;
@@ -67,15 +81,34 @@ const ChannelModes& Channel::GetModes() const {
 }
 
 void Channel::Broadcast(const std::string& message, Client* sender) {
-    for (std::set<Client*>::iterator it = _members.begin(); it != _members.end(); ++it) {
-        if (*it != sender) {
-            (*it)->GetOutBuffer().append(message + "\r\n");
-            (*it)->SetPollOut(true);
+    for (std::map<std::string, Client*>::iterator it = _members.begin(); it != _members.end(); ++it) {
+        if (it->second != sender) {
+            it->second->GetOutBuffer().append(message + "\r\n");
+            it->second->SetPollOut(true);
         }
     }
 }
-
-int Channel::GetClientCount()
-{
+int Channel::GetClientCount() {
     return _members.size();
+}
+
+
+void Channel::setTopicSetter(const std::string& setter) 
+{
+    _topicSetter = setter;
+}
+
+const std::string& Channel::getTopicSetter() const 
+{
+    return _topicSetter;
+}
+
+void Channel::setTopicSetTime(const std::string& time) 
+{
+    _topicSetTime = time;
+}
+
+const std::string& Channel::getTopicSetTime() const 
+{
+    return _topicSetTime;
 }

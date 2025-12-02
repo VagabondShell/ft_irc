@@ -1,6 +1,6 @@
 #include "../includes/Client.hpp"
 #include <vector>
-
+#include <set>  
 Client::Client(Client &other)
 {
     _Fd          = other._Fd;
@@ -80,7 +80,7 @@ bool Client::GetUserState() const{
   return _UserSet;
 }
 
-const std::string Client::GetNickName() {
+const std::string Client::GetNickName() const {
   return _NickName; 
 }
 
@@ -175,18 +175,48 @@ void Client::ProcessAndExtractCommands() {
 
 void Client::leftAllchannels()
 {
-  std::set<Channel*>::iterator it;
-  for (it = mychannles.begin(); it != mychannles.end(); it++)
-  {
-    Channel *chan = *it;
-    chan->RemoveMember(this);
-    if(chan->GetClientCount() == 0)
-      this->_ServerPtr->remove_channel(chan->GetName());
-    mychannles.erase(chan);
-  }
-  
+    std::set<Channel*>::iterator it = mychannles.begin();
+    while (it != mychannles.end())
+    {
+        Channel *chan = *it;
+        chan->RemoveMember(this);
+        if (chan->GetClientCount() == 0)
+        {
+            this->_ServerPtr->remove_channel(chan->GetName());
+            delete chan;
+        }
+        mychannles.erase(it++);
+    }
+}
+
+std::vector<std::string> Client::listOfInvitedChannles()
+{
+    std::vector<std::string> list;
+    std::set<Channel*>::iterator it = Invited_channel.begin();
+    while (it != Invited_channel.end())
+    {
+       list.push_back((*it)->GetName());
+       it++;
+    }
+    return list;
 }
 void Client::addChannel(Channel *channel)
 {
-  mychannles.insert(channel);
+    mychannles.insert(channel);
+}
+void Client::addInvitedChannel(Channel *channel)
+{
+  Invited_channel.insert(channel);
+}
+void Client::removeInvitedchannel(Channel *channel)
+{
+  Invited_channel.erase(channel);
+}
+void Client::removeMyChannel(Channel *channel)
+{
+  mychannles.erase(channel);
+}
+const std::set<Channel*>& Client::GetClientChannels() const
+{
+  return mychannles;
 }

@@ -47,11 +47,15 @@ public:
   void handleInviteCommand(Client *client, std::vector<std::string> args);
   void handleKickCommand(Client *client, std::vector<std::string> args);
   void handleTopicCommand(Client *client, std::vector<std::string> args);
+  void handlePartCommand(Client *client, std::vector<std::string> args);
   bool is_active(std::string);
   // void initialBot();
   time_t getStartTime() const ;
   void remove_channel(std::string channelName);
+  Client *GetClientByNick(std::string nick);
   std::map<std::string, Client *> GetNickNames() const;
+  
+  int execute_modes(Client* client, const std::string& channelName, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams);
 
 private:
 
@@ -76,7 +80,7 @@ private:
 };
 void processBotCommand(Client * client, std::string & message);
 std::vector<std::string> split_string_to_vector(const std::string &input_string,
-                                                char delimiter);
-std::string trim(const std::string &str);
-
+    char delimiter);
+bool check_channel(std::string channel);
+std::vector<std::string> generateElements(std::string str);
 #endif

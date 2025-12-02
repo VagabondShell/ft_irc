@@ -13,6 +13,7 @@ enum e_cmd_type {
   CMD_INVITE  = 8,
   CMD_KICK    = 9,
   CMD_TOPIC   = 10,
+  CMD_PART    = 11,
 };
 
 //bot command

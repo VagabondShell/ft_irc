@@ -6,7 +6,7 @@
 #include <vector>
 #include "Server.hpp"
 #include <poll.h>
-
+#include <set>
 class Client;
 class Server;
 
@@ -26,11 +26,15 @@ public:
   bool GetUserState() const;
   bool GetNickNameState() const;
   int GetFd() const;
-  const std::string GetNickName() ;
   const std::string GetUserName() const;
   const std::string & GetIpAddress() const ;
   void addChannel(Channel *channel);
+  void addInvitedChannel(Channel *channel);
+  void removeMyChannel(Channel *channel);
+  void removeInvitedchannel(Channel *channel);
   void leftAllchannels();
+  const std::set<Channel*>& GetClientChannels() const;
+  std::vector<std::string>listOfInvitedChannles();
   Server* GetServerPtr() const;
 
   void SetRegistration();
@@ -64,6 +68,7 @@ private:
 
   Server* _ServerPtr;
   std::set<Channel*> mychannles;
+  std::set<Channel*> Invited_channel;
   bool _invisible;
 };
 
