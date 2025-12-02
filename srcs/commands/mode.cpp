@@ -38,7 +38,7 @@ void create_modes(const std::vector<std::string>& args, std::vector<std::string>
 
         modes.push_back(fullMode);
     
-        if (c == 'k' || c == 'l' || c == 'o') 
+        if (c == 'o' || (c == 'k' && set_mode) || (c == 'l' && set_mode)) 
         {
             if (paramIndex < args.size()) 
                 modeParams.push_back(args[paramIndex++]);
@@ -84,7 +84,7 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
         {
             if (set_mode) 
             {
-                if (modeParams[paramIndex].empty()) 
+                if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty()) 
                 {
                     client->SendReply("461", "MODE +k :Not enough parameters");
                     return -1;
@@ -103,7 +103,7 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
         {
             if (set_mode) 
             {
-                if (modeParams[paramIndex].empty()) 
+                if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty()) 
                 {
                     client->SendReply("461", "MODE +l :Not enough parameters");
                     return -1;
@@ -126,7 +126,7 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
         }
         else if (c == 'o')
         {
-            if (modeParams[paramIndex].empty())
+            if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty())
             {
                 client->SendReply("461", "MODE +o/-o :Not enough parameters");
                 return -1;
@@ -146,7 +146,7 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
 
             if (!channel->IsMember(target))
             {
-                client->SendReply("441", tobe_operator + " " + channelName + " :They aren’t on that channel");
+                client->SendReply("441", tobe_operator + " " + channelName + " :They aren't on that channel");
                 return -1;
             }
 
@@ -165,12 +165,20 @@ std::string filterValidModes(const std::string& modeStr, int count, const std::v
     std::string modeParams;
     int executed = 0;
     size_t paramIndex = 0;
+    bool set_mode = true;
 
     for (size_t i = 0; i < modeStr.size(); ++i) {
         char c = modeStr[i];
 
-        if (c == '+' || c == '-') {
+        if (c == '+') {
             modeLetters += c;
+            set_mode = true;
+            continue;
+        }
+        
+        if (c == '-') {
+            modeLetters += c;
+            set_mode = false;
             continue;
         }
 
@@ -183,7 +191,7 @@ std::string filterValidModes(const std::string& modeStr, int count, const std::v
 
         modeLetters += c;
 
-        if (c == 'k' || c == 'l' || c == 'o') {
+        if (c == 'o' || (c == 'k' && set_mode) || (c == 'l' && set_mode)) {
             if (paramIndex < params.size() && !params[paramIndex].empty()) {
                 modeParams += " " + params[paramIndex];
             }
@@ -232,8 +240,3 @@ void Server::handleModeCommand(Client *client, std::vector<std::string> args)
         _channels[target]->Broadcast(notify, NULL);
     }   
 }
-
-
-
-
-
