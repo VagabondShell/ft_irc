@@ -2,7 +2,7 @@
 
 Server::Server(const int port, const std::string password)
     : _password(password), _port(port), _listenerFd(-1),
-    _serverName("ft_irc.local"), _StartTime(time(NULL))
+    _serverName("ft_irc.local")
 {
     this->_commandMap["PASS"] = CMD_PASS;
     this->_commandMap["NICK"] = CMD_NICK;

@@ -1,11 +1,20 @@
 #include "../../includes/Server.hpp"
+#include <iostream>
 
 
 
 void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
 {
+  std::cout << "The size of the vector is: " << args.size() << std::endl;
+
+  for (size_t i = 0; i < args.size(); i++)
+  {
+    if (!args[i].empty())
+      std::cout << args[i] << std::endl;
+    else
+      std::cout << RED << "Empty parameters" << std::endl;
+  }
   if (args.size() < 2) {
-    std::cout << RED << "Not enough params" << std::endl;
     client->SendReply("461", "TOPIC :Not enough parameters");
     return;
   }
