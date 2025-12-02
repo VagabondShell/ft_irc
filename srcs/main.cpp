@@ -34,6 +34,7 @@ bool isValidPassword(const std::string &password) {
       std::cerr << "Error: Password cannot be empty." << std::endl;
       return false;
     }
+
     return true;
 }
 
