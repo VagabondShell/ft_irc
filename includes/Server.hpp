@@ -77,5 +77,6 @@ private:
 void processBotCommand(Client * client, std::string & message);
 std::vector<std::string> split_string_to_vector(const std::string &input_string,
                                                 char delimiter);
+std::string trim(const std::string &str);
 
 #endif

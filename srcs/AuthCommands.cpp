@@ -102,5 +102,3 @@ void Server::handleUserCommand(Client *client, std::vector<std::string>args){
   if (!client->IsRegistered())
       checkRegistration(client); 
 }
-
-
