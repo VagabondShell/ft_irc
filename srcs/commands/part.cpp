@@ -34,10 +34,10 @@ void Server::handlePartCommand(Client *client, std::vector<std::string> args)
         }
         channel_it->second->Broadcast(prefix +" PART "+channels[i]+reason);
         channel_it->second->RemoveMember(client);
+        client->removeMyChannel(channel_it->second);
         if(channel_it->second->GetClientCount() == 0)
         {
             Channel* channelToDelete = channel_it->second;
-            client->removeMyChannel(channelToDelete);
             _channels.erase(channels[i]);
             delete channelToDelete;
         }
