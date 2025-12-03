@@ -24,9 +24,10 @@ Server::Server(const int port, const std::string password)
     int opt_val = 1; 
     if (setsockopt(_listenerFd, SOL_SOCKET, SO_REUSEADDR, &opt_val,
                    sizeof(opt_val)) < 0) {
-        throw std::runtime_error("Socket creation failed.");
-        // perror("setsockopt(SO_REUSEADDR) failed"); 
+        close(_listenerFd);
+        throw std::runtime_error("setsockopt failed.");
     }
+
     fcntl(_listenerFd, F_SETFL, O_NONBLOCK);
 
     struct sockaddr_in serv_addr;
@@ -53,28 +54,16 @@ Server::Server(const int port, const std::string password)
     listener_poll_fd.events = POLLIN;
     listener_poll_fd.revents = 0;
     _pollFds.push_back(listener_poll_fd);
-    // create the client for the bot 
-    // initialBot();
 
     std::cerr << GREEN
               << "[SERVER START] Operational on port " << _port 
               << ". Waiting for connections..." << std::endl;
 }
 
-// void Server::initialBot(){
-//     Client * bot = new Client(-1, this);
-//     _clients[-1] = bot;
-//     bot->SetNickname(BOT_NAME) ;
-//     bot->SetUserName("BotUser"); 
-//     bot->SetIpAddress("127.0.0.1");
-//     bot->SetRegistration();
-//     _nicknames[BOT_NAME] = bot;
-//     std::cerr << "[BOT] Initialized as " << BOT_NAME << "!" << std::endl;
-// }
-
 std::map<std::string, Client *> Server::GetNickNames() const{
     return _nicknames;
 }
+
 std::vector<struct pollfd> & Server::getPollfds(){
     return _pollFds;
 }
