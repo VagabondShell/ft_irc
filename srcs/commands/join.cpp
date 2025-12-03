@@ -127,6 +127,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
                 channel_obj = new Channel(channels[i]);
                 channel_obj->AddMember(client);
                 channel_obj->AddOperator(client);
+                channel_obj->setCreationTime(time(NULL));
                 _channels[channels[i]] = channel_obj;
                 client->addChannel(channel_obj);
                 respone_msg(client,prefix,channels[i],channel_obj);
