@@ -55,7 +55,7 @@ void respone_msg(Client *client,std::string prefix,std::string channel_name,Chan
             client->SendReply("332",channel_name+ " " + channel->GetTopic());
             client->SendReply("333",channel_name+" "+ channel->getTopicSetter() +" " + channel->getTopicSetTime());
         }
-        client->SendReply("353","= " + channel_name+": " + channel_members(*channel));
+        client->SendReply("353","= " + channel_name+" :" + channel_members(*channel));
         client->SendReply("366",channel_name+" :End of /NAMES list.");
         channel->Broadcast((prefix + " JOIN " + channel_name),client);
     }
