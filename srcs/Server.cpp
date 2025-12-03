@@ -118,11 +118,11 @@ void Server::handleNewConnection() {
     int new_client_fd =
         accept(_listenerFd, (struct sockaddr *)&client_addr, &addr_size);
     if (new_client_fd == -1) {
-        perror("accept failed"); 
+        std::cerr<<"accept failed"<<std::endl; 
         return; 
     }
     if (fcntl(new_client_fd, F_SETFL, O_NONBLOCK) == -1) {
-        perror("fcntl failed");
+        std::cerr<<"accept failed"<<std::endl; 
         close(new_client_fd); 
         return;
     }
