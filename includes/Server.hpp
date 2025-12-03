@@ -25,6 +25,7 @@
 #include "Client.hpp"
 #include "Command.hpp"
 #include "Command.hpp"
+#include <csignal>
 
 class Client;
 class Channel;

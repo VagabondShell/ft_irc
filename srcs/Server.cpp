@@ -156,15 +156,13 @@ bool Server::handleClientCommand(const int current_fd) {
     ssize_t bytes_read =
         recv(current_fd, temp_buffer, sizeof(temp_buffer) - 1, 0);
 
-    if (bytes_read == 0) {
+    if (bytes_read == 0)
         return true;
-
-    } else if (bytes_read < 0) {
-        if (errno == EWOULDBLOCK || errno == EAGAIN) {
+    else if (bytes_read < 0) {
+        if (errno == EWOULDBLOCK || errno == EAGAIN)
             return false; 
-        } else {
-            // perror("Fatal Recv Error");
-            // perror("Fatal Recv Error");
+        else {
+            std::cerr << "recv error: " << strerror(errno) << std::endl;
             return true; 
         }
     }

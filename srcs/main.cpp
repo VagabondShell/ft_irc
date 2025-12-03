@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
               << " \"./ircserv <port> <password>\"" << std::endl;
     return 1;
   }
+  signal(SIGPIPE, SIG_IGN);
   int port;
   std::string password;
   try {
