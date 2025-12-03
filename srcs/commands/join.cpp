@@ -89,30 +89,31 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
     std::map<std::string,Channel *>::iterator channel_it;
     it = args.begin() + 1;
     channels = generateElements(*it);
-    if(channels.size() == 1 && channels[0] == "0")
-    {
-        const std::set<Channel*> channels_set = client->GetClientChannels();
-        std::set<Channel*>::iterator set_it;
-        std::vector<std::string> args_part;
-        std::string channels_names;
-       
-        for ( set_it = channels_set.begin(); set_it != channels_set.end(); set_it++)
-        {
-            Channel *chan = *set_it;
-            channels_names += chan->GetName()+",";
-        }
-        if(channels_names.empty())
-            return;
-        args_part.push_back("PART");
-        args_part.push_back(channels_names);
-        handlePartCommand(client,args_part);
-        return;
-    }
+   
     it++;
     if (it != args.end())
         keys = generateElements(*it);
     for (size_t i = 0; i < channels.size(); i++)
     {
+        if(channels[i].size() == 1 && channels[i] == "0")
+        {
+            const std::set<Channel*> channels_set = client->GetClientChannels();
+            std::set<Channel*>::iterator set_it;
+            std::vector<std::string> args_part;
+            std::string channels_names;
+           
+            for ( set_it = channels_set.begin(); set_it != channels_set.end(); set_it++)
+            {
+                Channel *chan = *set_it;
+                channels_names += chan->GetName()+",";
+            }
+            if(channels_names.empty())
+                continue;
+            args_part.push_back("PART");
+            args_part.push_back(channels_names);
+            handlePartCommand(client,args_part);
+            continue;
+        }
         if (!check_channel(channels[i]))
         {
             content = channels[i] +" :No such channel";
