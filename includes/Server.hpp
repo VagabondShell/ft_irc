@@ -34,6 +34,7 @@ class Server {
 public:
 
   Server(const int port, const std::string password);
+  ~Server();
   void run();
   void commandDispatcher(Client *client, std::string commandLine);
   void checkRegistration(Client * client);
@@ -50,7 +51,6 @@ public:
   void handleTopicCommand(Client *client, std::vector<std::string> args);
   void handlePartCommand(Client *client, std::vector<std::string> args);
   bool is_active(std::string);
-  // void initialBot();
   time_t getStartTime() const ;
   void remove_channel(std::string channelName);
   Client *GetClientByNick(std::string nick);

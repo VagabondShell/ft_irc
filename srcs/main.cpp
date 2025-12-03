@@ -45,9 +45,9 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   signal(SIGPIPE, SIG_IGN);
-  int port;
-  std::string password;
   try {
+    int port;
+    std::string password;
     if (isValidPort(argv[1]))
       port = atoi(argv[1]);
     else{

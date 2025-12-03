@@ -1,5 +1,15 @@
 #include "../includes/Server.hpp"
 
+Server::~Server() {
+    if (_listenerFd != -1)
+        close(_listenerFd);
+
+    for (std::map<int, Client*>::iterator it = _clients.begin();  it != _clients.end(); ++it) {
+        close(it->first);      
+        delete it->second;     
+    }
+    _clients.clear(); 
+}
 Server::Server(const int port, const std::string password)
     : _password(password), _port(port), _listenerFd(-1),
     _serverName("ft_irc.local")
@@ -143,19 +153,17 @@ bool Server::is_active(std::string nickname)
 {
     return _nicknames.find(nickname) != _nicknames.end();
 }
+
 bool Server::handleClientCommand(const int current_fd) {
-
-    Client *client = _clients[current_fd];
-
-    // if (!client) {
-    //     // Handle case where client object is somehow missing (fatal error)
-    //     return;
-    // }
-
+    std::map<int, Client*>::iterator it = _clients.find(current_fd);
+    if (it == _clients.end()) {
+        std::cerr << "[Error] Data on FD " << current_fd << " but no Client object!" << std::endl;
+        return true; 
+    }
+    Client *client = it->second;
     char temp_buffer[1024];
     ssize_t bytes_read =
         recv(current_fd, temp_buffer, sizeof(temp_buffer) - 1, 0);
-
     if (bytes_read == 0)
         return true;
     else if (bytes_read < 0) {
@@ -277,8 +285,6 @@ time_t Server::getStartTime() const {
 }
 
 void Server::run() {
-    
-
     bool disconnected ;
     while (true) {
         std::cerr <<  GREEN <<"Polling on " << _pollFds.size() << " FDs."
@@ -318,7 +324,6 @@ void Server::run() {
 
 void Server::remove_channel(std::string channelName)
 {
-    
     _channels.erase(channelName);
 }
 Client *Server::GetClientByNick(std::string nick)
