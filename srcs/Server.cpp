@@ -142,7 +142,6 @@ void Server::handleNewConnection() {
     _clients[new_client_fd] = new Client(new_client_fd, this);
     _clients[new_client_fd]->SetIpAddress(ip_str);
     
-    //TODO understand it in more depth
     struct pollfd client_poll_fd = {};
     client_poll_fd.fd = new_client_fd;
     client_poll_fd.events = POLLIN;
