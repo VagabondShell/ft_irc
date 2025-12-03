@@ -60,6 +60,7 @@ public:
     void AddOperator(Client* client);
     void RemoveOperator(Client* client);
     int GetClientCount();
+    time_t GetCreationTime();
     const std::map<std::string, Client*>& GetMembers() const;
     void InviteMember(std::string nick);
     void UninviteMember(std::string nick);
@@ -70,6 +71,7 @@ public:
     void Broadcast(const std::string& message, Client* sender = NULL);
     
     void setTopicSetter(const std::string& setter);
+    void setCreationTime(time_t time);
     const std::string& getTopicSetter() const;
     void setTopicSetTime(const std::string& time);
     const std::string& getTopicSetTime() const;
@@ -81,7 +83,7 @@ private:
     std::map<std::string, Client*> _operators;
     std::set<std::string> _invited_members;
     ChannelModes _modes;
-    
+    time_t      _creationTime;
     std::string _topicSetter;
     std::string _topicSetTime;    
 };
