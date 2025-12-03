@@ -213,16 +213,22 @@ void Server::handleModeCommand(Client *client, std::vector<std::string> args)
         client->SendReply("461", "MODE :Not enough parameters");
         return;
     }
-    if (args.size() == 2) {
-        std::string channelName = args[1];
-        if (_channels.find(channelName) == _channels.end()) {
+    std::string channelName = args[1];
+
+    if (args.size() >= 2)
+    {
+        if (_channels.find(channelName) == _channels.end()) 
+        {
             client->SendReply("403", channelName + " :No such channel");
             return;
         }
+    }
+    if (args.size() == 2) 
+    {
         Channel* channel = _channels[channelName];
         std::string modes = channel->GetModes().toString();
         client->SendReply("324", channelName + " " + modes);
-        return;
+        return ;
     }
     std::string target = args[1];
     std::string modes = args[2];
