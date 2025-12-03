@@ -115,36 +115,30 @@ void Server::handleNewConnection() {
     struct sockaddr_in client_addr;
     socklen_t addr_size = sizeof(client_addr);
     std::memset(&client_addr, 0, addr_size);
-
     int new_client_fd =
         accept(_listenerFd, (struct sockaddr *)&client_addr, &addr_size);
-    // TODO check later for fealure -1
-    char* ip_temp_ptr = inet_ntoa(client_addr.sin_addr);
-
-    _clients[new_client_fd] = new Client(new_client_fd, this);
-    if (ip_temp_ptr) {
-        // 2. CRITICAL STEP: Store the IP address in the Client object.
-        // We pass the string to the Client setter, which copies the data.
-        _clients[new_client_fd]->SetIpAddress(std::string(ip_temp_ptr));
-
-        // The IP address is now safely stored inside Client::ip_address.
-    } else {
-        // Handle error if inet_ntoa somehow failed (shouldn't happen on a valid address)
-        // You can set a default IP like "0.0.0.0" or throw an error.
+    if (new_client_fd == -1) {
+        perror("accept failed"); 
+        return; 
     }
-
     if (fcntl(new_client_fd, F_SETFL, O_NONBLOCK) == -1) {
-        // TODO true the apropriate error
-        close(new_client_fd);
+        perror("fcntl failed");
+        close(new_client_fd); 
         return;
     }
-    // TODO create a function return this struct
+    char* ip_temp_ptr = inet_ntoa(client_addr.sin_addr);
+    std::string ip_str = (ip_temp_ptr) ? ip_temp_ptr : "0.0.0.0";
+    _clients[new_client_fd] = new Client(new_client_fd, this);
+    _clients[new_client_fd]->SetIpAddress(ip_str);
+    
+    //TODO understand it in more depth
     struct pollfd client_poll_fd = {};
     client_poll_fd.fd = new_client_fd;
     client_poll_fd.events = POLLIN;
     client_poll_fd.revents = 0;
     _pollFds.push_back(client_poll_fd);
 }
+
 bool Server::is_active(std::string nickname)
 {
     return _nicknames.find(nickname) != _nicknames.end();
