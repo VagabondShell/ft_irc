@@ -10,6 +10,7 @@ Server::~Server() {
     }
     _clients.clear(); 
 }
+
 Server::Server(const int port, const std::string password)
     : _password(password), _port(port), _listenerFd(-1),
     _serverName("ft_irc.local")
@@ -266,15 +267,20 @@ void Server::commandDispatcher(Client *client, std::string commandLine) {
 }
 
 void Server::disconnectClient(int current_fd) {
-    Client* clientToDelete = _clients[current_fd];
-    //TODO see if i need to protect this
+    std::map<int, Client*>::iterator it = _clients.find(current_fd);
+    if (it == _clients.end()) {
+        std::cerr << "[Error] Attempted to disconnect FD " << current_fd 
+                  << " but they are not in the client list." << std::endl;
+        close(current_fd); 
+        return;
+    }
+    Client* clientToDelete = it->second;
     std::cerr << RED
         << "[DISCONNECT] Client disconnected."
         << " Nickname: " << (clientToDelete->GetNickName().empty() ? "(Unregistered)" 
         : clientToDelete->GetNickName()) << " | FD: " << current_fd << std::endl;
         clientToDelete->leftAllchannels();
     _nicknames.erase(clientToDelete->GetNickName());
-   
     close(current_fd);
     delete clientToDelete;
     _clients.erase(current_fd);
@@ -289,10 +295,8 @@ void Server::run() {
     while (true) {
         std::cerr <<  GREEN <<"Polling on " << _pollFds.size() << " FDs."
             << std::endl;
-        int ret = poll(&_pollFds[0], _pollFds.size(), -1);
-        if (ret < 0) {
+        if (poll(&_pollFds[0], _pollFds.size(), -1) < 0)
             throw std::runtime_error("Poll fatal error");
-        }
         for (long unsigned int i = 0; i < _pollFds.size(); ++i) {
             disconnected = false;
             int current_fd = _pollFds[i].fd;
@@ -317,7 +321,6 @@ void Server::run() {
                 i--; 
                 continue;
             }
-
         }
     }
 }
@@ -326,6 +329,7 @@ void Server::remove_channel(std::string channelName)
 {
     _channels.erase(channelName);
 }
+
 Client *Server::GetClientByNick(std::string nick)
 {
     std::map<std::string, Client*>::iterator it = _nicknames.find(nick);
