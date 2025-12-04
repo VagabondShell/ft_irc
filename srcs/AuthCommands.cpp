@@ -40,8 +40,11 @@ void Server::handlePassCommand(Client *client, std::vector<std::string>args){
         return;
   }
   std::string client_password = trim(args[1]);
+  std::cout << "the password the client send *" << client_password << "*" <<  std::endl;
   if (_password == client_password){
     client->SetPassState(true); 
+    std::cout << GREEN 
+      << "[SUCCESS] " << " authenticated password successfully." << std::endl;
   }
   else
     client->SendReply("464", ":Password incorrect");
@@ -56,12 +59,18 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
         client->SendReply("431", ":No nickname given");
         return;
     }
+  // if (client->IsRegistered()) {
+  //       client->SendReply("462", ":You may not reregister");
+  //       return;
+  // }
   std::string new_nick = trim(args[1]);
   std::string old_nick = client->GetNickName();
+  std::cout << "old_nick: " << old_nick << std::endl;
   if (!isValidNickName(new_nick)){
       client->SendReply("432", new_nick + ":Erroneus nickname");
       return;
   }
+
   std::map<std::string, Client*>::iterator it = _nicknames.find(new_nick);
   if (it != _nicknames.end()) {
     if (it->second == client)
@@ -70,16 +79,17 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
     return;
   }
   if (!old_nick.empty()) {
-        _nicknames.erase(old_nick);
+        
         // Logic to broadcast the NICK change message to network
-         std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() +
+         std::string prefix = ":" + old_nick + "!" + client->GetUserName() +
                          "@" + client->GetIpAddress();
         std::string mesg = prefix + " " + "NICK"+" " + new_nick;
         client->GetOutBuffer().append((mesg+"\r\n"));
         client->SetPollOut(true);
-        client->BrodcastFromClient(mesg);
+        client->BrodcastFromClient(mesg,new_nick);
+        _nicknames.erase(old_nick);
   }
-  client->SetNickname(new_nick) ;
+  client->SetNickname(new_nick);
   _nicknames[new_nick] = client;
   client->SetNickState(true);
   if (!client->IsRegistered())
@@ -100,7 +110,10 @@ void Server::handleUserCommand(Client *client, std::vector<std::string>args){
     return;
   }
   client->SetUserName(args[1]);
+  std::cout << "_userName: " << client->GetUserName() << std::endl;
   client->SetUserState(true); 
+  std::cout << GREEN 
+    << "[SUCCESS] " << " User  successfully." << std::endl;
   if (!client->IsRegistered())
       checkRegistration(client); 
 }

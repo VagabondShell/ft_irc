@@ -54,6 +54,8 @@ public:
     bool IsMember(Client* client) const;
     bool IsMemberByNick(std::string nick) const;
     void RemoveMemberByNick(std::string nick);
+    void AddMemberbyNickname(std::string nick,Client *);
+    void AddOperatorbyNickname(std::string nick,Client* client);
     bool IsOperator(Client* client) const;
     void AddMember(Client* client);
     void RemoveMember(Client* client);

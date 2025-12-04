@@ -34,9 +34,15 @@ bool Channel::IsOperator(Client* client) const {
     }
     return false;
 }
-
+ void Channel::AddOperatorbyNickname(std::string nick,Client* client)
+ {
+    _operators[nick] = client;
+ }
 void Channel::AddMember(Client* client) {
     _members[client->GetNickName()] = client;
+}
+void Channel::AddMemberbyNickname(std::string nick,Client* client) {
+    _members[nick] = client;
 }
 
 void Channel::RemoveMember(Client* client) {

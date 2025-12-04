@@ -1,28 +1,28 @@
 #include "../includes/Client.hpp"
 #include <vector>
-#include <set>  
+#include <set>
 Client::Client(Client &other)
 {
-    _Fd          = other._Fd;
-    _ReadBuffer  = other._ReadBuffer;
-    _OutBuffer   = other._OutBuffer;
+  _Fd = other._Fd;
+  _ReadBuffer = other._ReadBuffer;
+  _OutBuffer = other._OutBuffer;
 
-    _NickName    = other._NickName;
-    _UserName    = other._UserName;
-    _IpAddrres   = other._IpAddrres;
+  _NickName = other._NickName;
+  _UserName = other._UserName;
+  _IpAddrres = other._IpAddrres;
 
-    _Registered  = other._Registered;
-    _NickSet     = other._NickSet;
-    _PassSet     = other._PassSet;
-    _UserSet     = other._UserSet;
+  _Registered = other._Registered;
+  _NickSet = other._NickSet;
+  _PassSet = other._PassSet;
+  _UserSet = other._UserSet;
 
-    _ServerPtr   = other._ServerPtr;   // shallow copy (pointer)
-    _invisible   = other._invisible;
+  _ServerPtr = other._ServerPtr; // shallow copy (pointer)
+  _invisible = other._invisible;
 }
 
-Client::Client(int fd, Server* serverPtr)
+Client::Client(int fd, Server *serverPtr)
     : _Fd(fd), _OutBuffer(""), _Registered(false), _NickSet(false),
-      _PassSet(false), _UserSet(false), _ServerPtr(serverPtr), _invisible(false) {}
+      _PassSet(false), _ServerPtr(serverPtr), _invisible(false) {}
 
 std::string Client::ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen) {
   std::string toRetrun = _ReadBuffer.substr(0, pos_found);
@@ -31,14 +31,18 @@ std::string Client::ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen
 }
 
 void Client::SendReply(const std::string &numeric,
-                        const std::string &content) {
+                       const std::string &content)
+{
   std::string prefix = ":ft_irc.local";
   std::string recipient;
-  
-  if (this->IsRegistered() || !this->GetNickName().empty()) {
+
+  if (this->IsRegistered() || !this->GetNickName().empty())
+  {
     recipient = this->GetNickName();
-  } else {
-    recipient = "*"; 
+  }
+  else
+  {
+    recipient = "*";
   }
 
   std::string full_message = prefix + " " + numeric + " " + recipient + " " + content;
@@ -46,113 +50,138 @@ void Client::SendReply(const std::string &numeric,
   this->SetPollOut(true);
 }
 
-void Client::SendPrivateMessage(const std::string &Message){
-    std::string FullMessage =  "PRIVMSG " + GetNickName() + " :" + Message + "\r\n" ;
-    this->GetOutBuffer().append(FullMessage + "\r\n");
-    this->SetPollOut(true);
+void Client::SendPrivateMessage(const std::string &Message)
+{
+  std::string FullMessage = "PRIVMSG " + GetNickName() + " :" + Message + "\r\n";
+  this->GetOutBuffer().append(FullMessage + "\r\n");
+  this->SetPollOut(true);
 }
 
-//Getters
-Server* Client::GetServerPtr() const{
+// Getters
+Server *Client::GetServerPtr() const
+{
   return _ServerPtr;
 }
 
-std::string &Client::GetReadBuffer() {
-  return _ReadBuffer; 
+std::string &Client::GetReadBuffer()
+{
+  return _ReadBuffer;
 }
 
-int Client::GetFd() const{
+int Client::GetFd() const
+{
   return _Fd;
 }
 
-bool Client::IsRegistered() const {
-  return _Registered; 
+bool Client::IsRegistered() const
+{
+  return _Registered;
 }
 
-bool Client::GetPassState() const{
+bool Client::GetPassState() const
+{
   return _PassSet;
 }
 
-bool Client::GetUserState() const{
+bool Client::GetUserState() const
+{
   return _UserSet;
 }
 
-const std::string Client::GetNickName() const {
-  return _NickName; 
+const std::string Client::GetNickName() const
+{
+  return _NickName;
 }
 
-const std::string Client::GetUserName() const {
-  return _UserName; 
+const std::string Client::GetUserName() const
+{
+  return _UserName;
 }
 
-std::string & Client::GetOutBuffer(){
-    return _OutBuffer;
+std::string &Client::GetOutBuffer()
+{
+  return _OutBuffer;
 }
 
-bool Client::GetNickNameState() const{
+bool Client::GetNickNameState() const
+{
   return _NickSet;
 }
 
-const std::string & Client::GetIpAddress() const{
+const std::string &Client::GetIpAddress() const
+{
   return _IpAddrres;
 }
 
-//Setters
-void Client::SetNickname(const std::string& Nick){
-  _NickName = Nick; 
+// Setters
+void Client::SetNickname(const std::string &Nick)
+{
+  _NickName = Nick;
 }
-void Client::SetUserName(const std::string& User){
+void Client::SetUserName(const std::string &User)
+{
   _UserName = User;
 }
 
-void Client::SetRegistration(){
+void Client::SetRegistration()
+{
   _Registered = true;
 }
 
-void Client::SetNickState(bool state){
+void Client::SetNickState(bool state)
+{
   _NickSet = state;
 }
 
-void Client::SetPassState(bool state){
+void Client::SetPassState(bool state)
+{
   _PassSet = state;
 }
 
-void Client::SetUserState(bool state){
+void Client::SetUserState(bool state)
+{
   _UserSet = state;
 }
 
-void Client::SetIpAddress(const std::string &addrr){
+void Client::SetIpAddress(const std::string &addrr)
+{
   _IpAddrres = addrr;
 }
 
-
-void Client::SetInvisible(bool on) {
-    _invisible = on;
+void Client::SetInvisible(bool on)
+{
+  _invisible = on;
 }
 
-bool Client::IsInvisible() const {
-    return _invisible;
+bool Client::IsInvisible() const
+{
+  return _invisible;
 }
 
-void Client::SetPollOut(bool state){
-    std::vector<struct pollfd>& poll_fds = _ServerPtr->getPollfds();
-    for (size_t i = 0; i < poll_fds.size(); ++i) {
+void Client::SetPollOut(bool state)
+{
+  std::vector<struct pollfd> &poll_fds = _ServerPtr->getPollfds();
+  for (size_t i = 0; i < poll_fds.size(); ++i)
+  {
 
-        if (poll_fds[i].fd == _Fd) {
-            if (state == true) {
-                poll_fds[i].events |= POLLOUT; 
-            } else {
-                poll_fds[i].events &= ~POLLOUT;
-            }
-            return; 
-        }
+    if (poll_fds[i].fd == _Fd)
+    {
+      if (state == true)
+      {
+        poll_fds[i].events |= POLLOUT;
+      }
+      else
+      {
+        poll_fds[i].events &= ~POLLOUT;
+      }
+      return;
     }
-    //TODO If the loop finishes without finding the FD, the client may have disconnected.
+  }
+  // TODO If the loop finishes without finding the FD, the client may have disconnected.
 }
     
 // retreave the commmand and its argument then run it 
 void Client::ProcessAndExtractCommands() {
-
   if (_ReadBuffer.size() > 512) {
     SendReply("417" , ":Input line was too long");
     _ReadBuffer.clear();
@@ -167,7 +196,8 @@ void Client::ProcessAndExtractCommands() {
     dilimiterLen = 1;
   }
 
-  while (pos_found != std::string::npos) {
+  while (pos_found != std::string::npos)
+  {
     std::string command_line = ExtractAndEraseFromBuffer(pos_found, dilimiterLen);
     _ServerPtr->commandDispatcher(this, command_line);
     pos_found = _ReadBuffer.find("\r\n");
@@ -178,58 +208,63 @@ void Client::ProcessAndExtractCommands() {
 
 void Client::leftAllchannels()
 {
-    std::set<Channel*>::iterator it = mychannles.begin();
-    while (it != mychannles.end())
+  std::set<Channel *>::iterator it = mychannles.begin();
+  while (it != mychannles.end())
+  {
+    Channel *chan = *it;
+    chan->RemoveMember(this);
+    if (chan->GetClientCount() == 0)
     {
-        Channel *chan = *it;
-        chan->RemoveMember(this);
-        if (chan->GetClientCount() == 0)
-        {
-            this->_ServerPtr->remove_channel(chan->GetName());
-            delete chan;
-        }
-        mychannles.erase(it++);
+      this->_ServerPtr->remove_channel(chan->GetName());
+      delete chan;
     }
+    mychannles.erase(it++);
+  }
 }
 
-
-void Client::BrodcastFromClient(std::string msg)
+void Client::BrodcastFromClient(std::string msg, std::string new_nick)
 {
-    std::set<Channel*>::iterator it = mychannles.begin();
-    std::map<std::string,Client*> listclient;
-    std::set<Client*> my_friends;
-    while (it != mychannles.end())
+  std::set<Channel *>::iterator it = mychannles.begin();
+  std::map<std::string, Client *> listclient;
+  std::set<Client *> my_friends;
+  while (it != mychannles.end())
+  {
+    Channel *chan = *it;
+
+    chan->AddMemberbyNickname(new_nick, this);
+    if (chan->IsOperator(this))
+      chan->AddOperatorbyNickname(new_nick, this);
+    chan->RemoveMember(this);
+    listclient = chan->GetMembers();
+    for (std::map<std::string, Client *>::iterator it2 = listclient.begin(); it2 != listclient.end(); it2++)
     {
-        Channel *chan = *it;
-        listclient = chan->GetMembers();
-        for (std::map<std::string,Client*>::iterator it2 = listclient.begin(); it2 != listclient.end() ; it2++)
-        {
-          my_friends.insert(it2->second);
-        }        
-        it++;
+      my_friends.insert(it2->second);
     }
-       for (std::set<Client*>::iterator it = my_friends.begin(); it != my_friends.end(); ++it)
-      {
-        if (*it != this) {
-            (*it)->GetOutBuffer().append(msg + "\r\n");
-            (*it)->SetPollOut(true);
-        }
-      }
+    it++;
+  }
+  for (std::set<Client *>::iterator it = my_friends.begin(); it != my_friends.end(); ++it)
+  {
+    if (*it != this)
+    {
+      (*it)->GetOutBuffer().append(msg + "\r\n");
+      (*it)->SetPollOut(true);
+    }
+  }
 }
 std::vector<std::string> Client::listOfInvitedChannles()
 {
-    std::vector<std::string> list;
-    std::set<Channel*>::iterator it = Invited_channel.begin();
-    while (it != Invited_channel.end())
-    {
-       list.push_back((*it)->GetName());
-       it++;
-    }
-    return list;
+  std::vector<std::string> list;
+  std::set<Channel *>::iterator it = Invited_channel.begin();
+  while (it != Invited_channel.end())
+  {
+    list.push_back((*it)->GetName());
+    it++;
+  }
+  return list;
 }
 void Client::addChannel(Channel *channel)
 {
-    mychannles.insert(channel);
+  mychannles.insert(channel);
 }
 void Client::addInvitedChannel(Channel *channel)
 {
@@ -243,7 +278,7 @@ void Client::removeMyChannel(Channel *channel)
 {
   mychannles.erase(channel);
 }
-const std::set<Channel*>& Client::GetClientChannels() const
+const std::set<Channel *> &Client::GetClientChannels() const
 {
   return mychannles;
 }

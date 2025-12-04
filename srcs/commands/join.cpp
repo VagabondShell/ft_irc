@@ -30,7 +30,8 @@ std::string channel_members(Channel const &chan)
     std::string list = "";
     for (it = members.begin(); it != members.end(); ++it)
     {
-        Client* c = it->second; 
+        Client* c = it->second;
+        std::cout<< it->first<<std::endl;
         if (chan.IsMember(c))
         {
             if (chan.IsOperator(c))
