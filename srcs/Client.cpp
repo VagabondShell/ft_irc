@@ -24,7 +24,6 @@ Client::Client(int fd, Server* serverPtr)
     : _Fd(fd), _OutBuffer(""), _Registered(false), _NickSet(false),
       _PassSet(false), _UserSet(false), _ServerPtr(serverPtr), _invisible(false) {}
 
-//Get the commnad untile the /r/n return it and remove it from the buffer
 std::string Client::ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen) {
   std::string toRetrun = _ReadBuffer.substr(0, pos_found);
   _ReadBuffer = _ReadBuffer.substr(pos_found + dilimiterLen);
@@ -43,7 +42,6 @@ void Client::SendReply(const std::string &numeric,
   }
 
   std::string full_message = prefix + " " + numeric + " " + recipient + " " + content;
-  std::cout << "full message: " << full_message << std::endl;
   this->GetOutBuffer().append(full_message + "\r\n");
   this->SetPollOut(true);
 }
@@ -157,7 +155,6 @@ void Client::ProcessAndExtractCommands() {
 
   if (_ReadBuffer.size() > 512) {
     SendReply("417" , ":Input line was too long");
-    std::cout << "Error: Message too long, clearing buffer." << std::endl;
     _ReadBuffer.clear();
     return;
   }

@@ -10,11 +10,11 @@ std::string trim(const std::string &str) {
 }
 
 bool Server::isValidNickName(std::string nickname) {
-    //TODO check if this line is correct
-    char first_char = nickname[0];
-    if (nickname.find(' ') != std::string::npos) {
+    if (nickname.empty()) {
         return false;
     }
+    std::cout << nickname << std::endl;
+    char first_char = nickname[0];
     if (first_char == '#' || first_char == ':' || std::isdigit(first_char))
         return false;
     
@@ -48,6 +48,10 @@ void Server::handlePassCommand(Client *client, std::vector<std::string>args){
 }
 
 void Server::handleNickCommand(Client *client, std::vector<std::string>args){
+  if (!client->GetPassState()) {
+            client->SendReply("451",":You have not registered");
+            return; 
+  }
   if (args.size() < 2 || trim(args[1]).empty()) { 
         client->SendReply("431", ":No nickname given");
         return;
@@ -83,6 +87,10 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
 }
 
 void Server::handleUserCommand(Client *client, std::vector<std::string>args){
+  if (!client->GetPassState()) {
+            client->SendReply("451",":You have not registered");
+            return; 
+  }
   if (args.size() < 2 || trim(args[1]).empty() || args.size() < 5  || (args .size() > 4 && args[4].empty())) { 
     client->SendReply("461", ":Not enough parameters");
     return;

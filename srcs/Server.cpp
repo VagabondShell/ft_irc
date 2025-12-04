@@ -240,7 +240,6 @@ void Server::commandDispatcher(Client *client, std::string commandLine) {
             return; 
         }
     }
-    std::cout << "full cmd: " << commandLine << std::endl;
     switch (cmd) {
         case CMD_PASS:
             handlePassCommand(client, splitedCommand); 
