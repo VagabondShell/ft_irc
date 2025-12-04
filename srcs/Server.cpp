@@ -43,9 +43,8 @@ Server::Server(const int port, const std::string password)
         throw std::runtime_error("setsockopt failed.");
     }
 
-    if (fcntl(_listenerFd, F_SETFL, O_NONBLOCK) == 1)
+    if (fcntl(_listenerFd, F_SETFL, O_NONBLOCK) == -1)
     {
-        std::cerr<<"fcntl failed"<<std::endl; 
         close(_listenerFd); 
         throw std::runtime_error("fcntl failed.");
     }
@@ -142,9 +141,6 @@ void Server::handleNewConnection() {
         return; 
     }
     if (fcntl(new_client_fd, F_SETFL, O_NONBLOCK) == -1) {
-        std::cerr<<"fcntl failed"<<std::endl; 
-        close(new_client_fd); 
-        return;
         std::cerr<<"fcntl failed"<<std::endl; 
         close(new_client_fd); 
         return;

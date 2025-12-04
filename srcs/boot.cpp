@@ -135,6 +135,12 @@ int setup_connection(const std::string& server_ip, int port) {
         throw std::runtime_error("Failed to create socket.");
     }
 
+    if (fcntl(bot_socket_fd, F_SETFL, O_NONBLOCK) == -1)
+    {
+        close(bot_socket_fd); 
+        throw std::runtime_error("fcntl failed.");
+    }
+
     struct sockaddr_in serv_addr;
     std::memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET; 
@@ -145,7 +151,6 @@ int setup_connection(const std::string& server_ip, int port) {
         close(bot_socket_fd);
         throw std::runtime_error("Connection refused or failed.");
     }
-    
     return bot_socket_fd;
 }
 
