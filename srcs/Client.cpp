@@ -17,7 +17,6 @@ Client::Client(Client &other)
     _UserSet     = other._UserSet;
 
     _ServerPtr   = other._ServerPtr;   // shallow copy (pointer)
-
     _invisible   = other._invisible;
 }
 
@@ -189,6 +188,30 @@ void Client::leftAllchannels()
     }
 }
 
+
+void Client::BrodcastFromClient(std::string msg)
+{
+    std::set<Channel*>::iterator it = mychannles.begin();
+    std::map<std::string,Client*> listclient;
+    std::set<Client*> my_friends;
+    while (it != mychannles.end())
+    {
+        Channel *chan = *it;
+        listclient = chan->GetMembers();
+        for (std::map<std::string,Client*>::iterator it2 = listclient.begin(); it2 != listclient.end() ; it2++)
+        {
+          my_friends.insert(it2->second);
+        }        
+        it++;
+    }
+       for (std::set<Client*>::iterator it = my_friends.begin(); it != my_friends.end(); ++it)
+      {
+        if (*it != this) {
+            (*it)->GetOutBuffer().append(msg + "\r\n");
+            (*it)->SetPollOut(true);
+        }
+      }
+}
 std::vector<std::string> Client::listOfInvitedChannles()
 {
     std::vector<std::string> list;

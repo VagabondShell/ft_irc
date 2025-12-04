@@ -77,6 +77,12 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
   if (!old_nick.empty()) {
         _nicknames.erase(old_nick);
         // Logic to broadcast the NICK change message to network
+         std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() +
+                         "@" + client->GetIpAddress();
+        std::string mesg = prefix + " " + "NICK"+" " + new_nick;
+        client->GetOutBuffer().append((mesg+"\r\n"));
+        client->SetPollOut(true);
+        client->BrodcastFromClient(mesg);
   }
   client->SetNickname(new_nick) ;
   _nicknames[new_nick] = client;

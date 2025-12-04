@@ -35,6 +35,8 @@ public:
   void leftAllchannels();
   const std::set<Channel*>& GetClientChannels() const;
   std::vector<std::string>listOfInvitedChannles();
+  void BrodcastFromClient(std::string msg);
+
   Server* GetServerPtr() const;
 
   void SetRegistration();
@@ -65,7 +67,6 @@ private:
   bool _NickSet;
   bool _PassSet;
   bool _UserSet;
-
   Server* _ServerPtr;
   std::set<Channel*> mychannles;
   std::set<Channel*> Invited_channel;
