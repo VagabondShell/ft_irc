@@ -155,6 +155,13 @@ void Client::SetPollOut(bool state){
     
 // retreave the commmand and its argument then run it 
 void Client::ProcessAndExtractCommands() {
+
+  if (_ReadBuffer.size() > 512) {
+    SendReply("417" , ":Input line was too long");
+    std::cout << "Error: Message too long, clearing buffer." << std::endl;
+    _ReadBuffer.clear();
+    return;
+  }
   int dilimiterLen;
   size_t pos_found = _ReadBuffer.find("\r\n");
   dilimiterLen = 2;
