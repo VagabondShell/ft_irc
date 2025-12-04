@@ -12,7 +12,7 @@ NICKNAME="$1"
 
 {
     echo "PASS ${DEFAULT_PASS}"
-    echo "USER USER USER User"
+    echo "USER USER USER User USER"
     echo "NICK ${NICKNAME}"
     cat
 } | nc ${SERVER_IP} ${SERVER_PORT}
