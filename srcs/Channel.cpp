@@ -82,7 +82,7 @@ const ChannelModes& Channel::GetModes() const {
 
 void Channel::Broadcast(const std::string& message, Client* sender) {
     for (std::map<std::string, Client*>::iterator it = _members.begin(); it != _members.end(); ++it) {
-        if (it->second != sender) {
+        if (it->second != sender ) {
             it->second->GetOutBuffer().append(message + "\r\n");
             it->second->SetPollOut(true);
         }
