@@ -55,10 +55,6 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
         client->SendReply("431", ":No nickname given");
         return;
     }
-  // if (client->IsRegistered()) {
-  //       client->SendReply("462", ":You may not reregister");
-  //       return;
-  // }
   std::string new_nick = trim(args[1]);
   std::string old_nick = client->GetNickName();
   std::cout << "old_nick: " << old_nick << std::endl;
@@ -86,7 +82,7 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
 }
 
 void Server::handleUserCommand(Client *client, std::vector<std::string>args){
-  if (args.size() < 4 || trim(args[1]).empty()) { 
+  if (args.size() < 2 || trim(args[1]).empty() || args.size() < 5  || (args .size() > 4 && args[4].empty())) { 
     client->SendReply("461", ":Not enough parameters");
     return;
   }
@@ -95,10 +91,7 @@ void Server::handleUserCommand(Client *client, std::vector<std::string>args){
     return;
   }
   client->SetUserName(args[1]);
-  std::cout << "_userName: " << client->GetUserName() << std::endl;
   client->SetUserState(true); 
-  std::cout << GREEN 
-    << "[SUCCESS] " << " User  successfully." << std::endl;
   if (!client->IsRegistered())
       checkRegistration(client); 
 }
