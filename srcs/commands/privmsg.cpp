@@ -5,12 +5,12 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
 {
   if (args.size() < 2)
   {
-    client->SendReply("411", ":No recipient given (" + args[0] + ")");
+    client->SendReply("411", " :No recipient given (" + args[0] + ")");
     return;
   }
-  if (args.size() < 3)
+  if (args.size() < 3 || (args.size() > 2 && args[2].empty()))
   {
-    client->SendReply("412", ":No text to send");
+    client->SendReply("412", " :No text to send");
     return;
   }
   std::string target = args[1];
