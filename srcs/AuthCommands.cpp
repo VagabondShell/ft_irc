@@ -40,33 +40,24 @@ void Server::handlePassCommand(Client *client, std::vector<std::string>args){
         return;
   }
   std::string client_password = trim(args[1]);
-  std::cout << "the password the client send *" << client_password << "*" <<  std::endl;
   if (_password == client_password){
     client->SetPassState(true); 
-    std::cout << GREEN 
-      << "[SUCCESS] " << " authenticated password successfully." << std::endl;
   }
   else
     client->SendReply("464", ":Password incorrect");
 }
 
 void Server::handleNickCommand(Client *client, std::vector<std::string>args){
-  if (args.size() < 2 || trim(args[1]).empty()) { // Check argument existence AND trimmed emptiness
+  if (args.size() < 2 || trim(args[1]).empty()) { 
         client->SendReply("431", ":No nickname given");
         return;
     }
-  // if (client->IsRegistered()) {
-  //       client->SendReply("462", ":You may not reregister");
-  //       return;
-  // }
   std::string new_nick = trim(args[1]);
   std::string old_nick = client->GetNickName();
-  std::cout << "old_nick: " << old_nick << std::endl;
   if (!isValidNickName(new_nick)){
       client->SendReply("432", new_nick + ":Erroneus nickname");
       return;
   }
-
   std::map<std::string, Client*>::iterator it = _nicknames.find(new_nick);
   if (it != _nicknames.end()) {
     if (it->second == client)
@@ -92,7 +83,7 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
 }
 
 void Server::handleUserCommand(Client *client, std::vector<std::string>args){
-  if (args.size() < 4 || trim(args[1]).empty()) { 
+  if (args.size() < 2 || trim(args[1]).empty() || args.size() < 5  || (args .size() > 4 && args[4].empty())) { 
     client->SendReply("461", ":Not enough parameters");
     return;
   }
@@ -101,10 +92,7 @@ void Server::handleUserCommand(Client *client, std::vector<std::string>args){
     return;
   }
   client->SetUserName(args[1]);
-  std::cout << "_userName: " << client->GetUserName() << std::endl;
   client->SetUserState(true); 
-  std::cout << GREEN 
-    << "[SUCCESS] " << " User  successfully." << std::endl;
   if (!client->IsRegistered())
       checkRegistration(client); 
 }
