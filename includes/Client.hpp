@@ -35,7 +35,7 @@ public:
   void leftAllchannels();
   const std::set<Channel*>& GetClientChannels() const;
   std::vector<std::string>listOfInvitedChannles();
-  void BrodcastFromClient(std::string msg);
+  void BrodcastFromClient(std::string msg,std::string);
 
   Server* GetServerPtr() const;
 
