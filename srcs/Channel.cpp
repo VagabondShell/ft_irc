@@ -91,9 +91,9 @@ void Channel::Broadcast(const std::string& message, Client* sender) {
 int Channel::GetClientCount() {
     return _members.size();
 }
-time_t Channel::GetCreationTime()
+std::string Channel::GetCreationTime()
 {
-    return _creationTime;
+    return timeToString(_creationTime);
 }
 void Channel::setCreationTime(time_t time)
 {
@@ -117,4 +117,11 @@ void Channel::setTopicSetTime(const std::string& time)
 const std::string& Channel::getTopicSetTime() const 
 {
     return _topicSetTime;
+}
+
+std::string Channel::timeToString(time_t now) const 
+{
+    std::stringstream tmp;
+    tmp << now;
+    return tmp.str();
 }
