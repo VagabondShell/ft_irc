@@ -182,10 +182,9 @@ void Client::SetPollOut(bool state)
   }
   // TODO If the loop finishes without finding the FD, the client may have disconnected.
 }
-
-// retreave the commmand and its argument then run it
-void Client::ProcessAndExtractCommands()
-{
+    
+// retreave the commmand and its argument then run it 
+void Client::ProcessAndExtractCommands() {
   int dilimiterLen;
   size_t pos_found = _ReadBuffer.find("\r\n");
   dilimiterLen = 2;
