@@ -1,0 +1,5 @@
+- [ ] dont send if the the client not registerd
+- [ ] add check failure in fcntl
+- [ ] the lenght of the user
+- [ ] order for authentificating 
+- [ ] 411 no text to send 
