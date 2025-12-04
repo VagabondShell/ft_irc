@@ -31,7 +31,7 @@ struct ChannelModes {
         std::string params;
         if (inviteOnly) flags += "i";
         if (topicOpOnly) flags += "t";
-        if (passwordSet) { flags += "k"; params += "password_Hided"; }
+        if (passwordSet) { flags += "k"; params += password; }
         if (userLimitSet) {
             flags += "l";
             std::ostringstream oss;
@@ -60,7 +60,7 @@ public:
     void AddOperator(Client* client);
     void RemoveOperator(Client* client);
     int GetClientCount();
-    time_t GetCreationTime();
+    std::string GetCreationTime();
     const std::map<std::string, Client*>& GetMembers() const;
     void InviteMember(std::string nick);
     void UninviteMember(std::string nick);
@@ -75,6 +75,8 @@ public:
     const std::string& getTopicSetter() const;
     void setTopicSetTime(const std::string& time);
     const std::string& getTopicSetTime() const;
+
+    std::string timeToString(time_t t) const;
     
 private:
     std::string _name;

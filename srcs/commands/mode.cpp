@@ -1,4 +1,6 @@
 #include "../../includes/Server.hpp"
+#include <cstdlib>
+#include <sstream>
 
 
 
@@ -38,7 +40,7 @@ void create_modes(const std::vector<std::string>& args, std::vector<std::string>
 
         modes.push_back(fullMode);
     
-        if (c == 'o' || (c == 'k' && set_mode) || (c == 'l' && set_mode)) 
+        if (c == 'k' || c == 'l' || c == 'o') 
         {
             if (paramIndex < args.size()) 
                 modeParams.push_back(args[paramIndex++]);
@@ -86,7 +88,7 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
             {
                 if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty()) 
                 {
-                    client->SendReply("461", "MODE +k :Not enough parameters");
+                    client->SendReply("696", channelName + " " + c +" :No parameter provided");
                     return -1;
                 }
                 std::string new_pass = modeParams[paramIndex++];
@@ -105,18 +107,21 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
             {
                 if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty()) 
                 {
-                    client->SendReply("461", "MODE +l :Not enough parameters");
+                    client->SendReply("696", channelName + " " + c +" :No parameter provided");
                     return -1;
                 }
+
+                // size_t limit = std::stoull(modeParams[paramIndex++]);
                 
                 size_t limit = atoi(modeParams[paramIndex++].c_str());
                 if (limit <= 0) 
                 {
-                    client->SendReply("461", "MODE +l :Invalid limit parameter");
+                    client->SendReply("696", channelName + " " + c +" :Invalid limit parameter");
                     return -1;
                 }
+                paramIndex++;
                 channel->GetModes().userLimitSet = true;
-                channel->GetModes().userLimit = limit;
+                channel->GetModes().userLimit = (size_t)limit;
             } 
             else 
             {
@@ -128,7 +133,7 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
         {
             if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty())
             {
-                client->SendReply("461", "MODE +o/-o :Not enough parameters");
+                client->SendReply("696", channelName + " " + c +" :No parameter provided");
                 return -1;
             }
 
@@ -182,9 +187,9 @@ std::string filterValidModes(const std::string& modeStr, int count, const std::v
             continue;
         }
 
-        if (c != 'i' && c != 't' && c != 'k' && c != 'l' && c != 'o') {
+        if (c != 'i' && c != 't' && c != 'k' && c != 'l' && c != 'o') 
             continue;
-        }
+
 
         if (executed >= count)
             break;
@@ -213,22 +218,19 @@ void Server::handleModeCommand(Client *client, std::vector<std::string> args)
         client->SendReply("461", "MODE :Not enough parameters");
         return;
     }
-    std::string channelName = args[1];
-
-    if (args.size() >= 2)
-    {
-        if (_channels.find(channelName) == _channels.end()) 
-        {
+    if (args.size() == 2) {
+        std::string channelName = args[1];
+        if (_channels.find(channelName) == _channels.end()) {
             client->SendReply("403", channelName + " :No such channel");
             return;
         }
-    }
-    if (args.size() == 2) 
-    {
         Channel* channel = _channels[channelName];
         std::string modes = channel->GetModes().toString();
         client->SendReply("324", channelName + " " + modes);
-        return ;
+        std::stringstream time_str;
+        time_str << channel->GetCreationTime();
+        client->SendReply("329", channelName + " " + time_str.str());
+        return;
     }
     std::string target = args[1];
     std::string modes = args[2];
