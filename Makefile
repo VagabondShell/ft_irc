@@ -7,7 +7,7 @@ RM        = rm -rf
 SRCS_FILES      = main.cpp Server.cpp Client.cpp AuthCommands.cpp Channel.cpp commands/mode.cpp \
 				  commands/privmsg.cpp commands/join.cpp commands/topic.cpp\
 				  commands/kick.cpp commands/invite.cpp commands/part.cpp
-BONUS_FILE = srcs/bot.cpp 
+BONUS_FILE = bonus/bot.cpp 
 BONUS_OBJS  = $(BONUS_FILE:.cpp=.o)
 
 SRCS 		= $(addprefix srcs/, $(SRCS_FILES))
@@ -23,8 +23,11 @@ bonus: $(BONUS_NAME)
 $(BONUS_NAME): $(BONUS_OBJS)
 	$(CC) $(CFLAGS) $(BONUS_OBJS) -o $(BONUS_NAME)
 
-%.o: %.cpp
+srcs/%.o: srcs/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@ -MMD
+
+bonus/%.o: bonus/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(OBJS) $(OBJS:.o=.d)
