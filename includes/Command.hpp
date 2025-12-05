@@ -16,13 +16,5 @@ enum e_cmd_type {
   CMD_PART    = 11,
 };
 
-//bot command
-enum e_cmd_bot_type {
-    BOT_CMD_HELP    = 0, // Displays available commands
-    BOT_CMD_TIME    = 1, // Displays the server time
-    BOT_CMD_JOKE  = 2, 
-    BOT_CMD_UNKNOWN = 4, // Mandatory default for unrecognized commands
-};
-
 
 #endif // !COMMAND_HPP

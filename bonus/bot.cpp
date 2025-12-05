@@ -1,4 +1,24 @@
-#include "../includes/Server.hpp"
+#include <iostream>     
+#include <string>       
+#include <vector>       
+#include <sstream>      
+#include <cstring>      
+#include <cstdlib>      
+#include <ctime>        
+#include <stdexcept>    
+#include <sys/socket.h> 
+#include <netinet/in.h> 
+#include <arpa/inet.h>  
+#include <unistd.h>     
+#include <fcntl.h>      
+#include <cerrno>       
+#define GREEN    "\x1b[32m" 
+enum e_cmd_bot_type {
+    BOT_CMD_HELP    = 0,
+    BOT_CMD_TIME    = 1,
+    BOT_CMD_JOKE  = 2, 
+    BOT_CMD_UNKNOWN = 4,
+};
 
 std::vector<std::string> splitVector(const std::string &input_string,
                                                 char delimiter) {
@@ -133,8 +153,8 @@ void processBotCommand(int bot_fd, std::string & FullMessage){
             handleBotJoke(bot_fd, Sendclient);
             break;
         case BOT_CMD_UNKNOWN:
-            std::string message = splitedCommand[1] + "is not a recognized command. Use help for a list of available commands.";
-            // SendPrivateMessage(bot_fd, Sendclient, message);
+            std::string message = cmd + " is not a recognized command. Use !help for a list of available commands.";
+            SendPrivateMessage(bot_fd, Sendclient, message);
             break;
     }
 }
