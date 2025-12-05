@@ -10,11 +10,11 @@
 class Client;
 
 struct ChannelModes {
-    bool inviteOnly;        // +i
-    bool topicOpOnly;       // +t
-    bool passwordSet;       // +k
+    bool inviteOnly;       
+    bool topicOpOnly;      
+    bool passwordSet;      
     std::string password;
-    bool userLimitSet;      // +l
+    bool userLimitSet;     
     size_t userLimit;
 
     ChannelModes()
@@ -31,7 +31,7 @@ struct ChannelModes {
         std::string params;
         if (inviteOnly) flags += "i";
         if (topicOpOnly) flags += "t";
-        if (passwordSet) { flags += "k"; params += password; }
+        if (passwordSet) { flags += "k"; params += " " + password; }
         if (userLimitSet) {
             flags += "l";
             std::ostringstream oss;
