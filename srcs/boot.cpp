@@ -1,5 +1,6 @@
 #include "../includes/Server.hpp"
-#include <unistd.h>
+#include <ostream>
+#include <string>
 
 std::vector<std::string> splitVector(const std::string &input_string,
                                                 char delimiter) {
@@ -14,29 +15,30 @@ std::vector<std::string> splitVector(const std::string &input_string,
     }
     return tokens;
 }
-// e_cmd_bot_type getCmdTtype(const std::string & cmdName)
-// {
-//     const std::string botCmdsNames[] = {
-//         "!help",
-//         "!time",
-//         "!joke",
-//     };
-//     for (size_t i = 0; i < 4; i++) {
-//         if (cmdName == botCmdsNames[i])
-//             return e_cmd_bot_type(i);
-//     }
-//     return BOT_CMD_UNKNOWN;
-// }
-//
-// void SendPrivateMessage(int bot_fd, std::string & SendClient, const std::string &Message){
-//     std::string FullMessage =  "PRIVMSG " + SendClient + " :" + Message + "\r\n" ;
-//     std::cout << "FullMessage: " << FullMessage << std::endl;
-//     if (send(bot_fd, Message.c_str(), Message.length(), 0) == -1){
-//         throw std::runtime_error("Bot connection failed during send.");
-//     }
-//
-// }
-//
+
+e_cmd_bot_type getCmdTtype(const std::string & cmdName)
+{
+    const std::string botCmdsNames[] = {
+        "!help",
+        "!time",
+        "!joke",
+    };
+    for (size_t i = 0; i < 4; i++) {
+        if (cmdName == botCmdsNames[i])
+            return e_cmd_bot_type(i);
+    }
+    return BOT_CMD_UNKNOWN;
+}
+
+void SendPrivateMessage(int bot_fd, std::string & SendClient, const std::string &Message){
+    std::string FullMessage =  "PRIVMSG " + SendClient + " :" + Message + "\r\n" ;
+    std::cout << "FullMessage: " << FullMessage << std::endl;
+    if (send(bot_fd, Message.c_str(), Message.length(), 0) == -1){
+        throw std::runtime_error("Bot connection failed during send.");
+    }
+}
+
+
 // void handleBotJoke(int bot_fd, std::string & SendClient, const std::vector<std::string>& args) {
 //     
 //     if (args.size() != 1) { 
@@ -81,34 +83,42 @@ std::vector<std::string> splitVector(const std::string &input_string,
 //      if (len > 0)
 //          SendPrivateMessage(bot_fd, Sendclient, TimeBuffer);
 // }
-
+std::string extractNick(const std::string& prefix) {
+    size_t exclamationPos = prefix.find('!');
+    if (exclamationPos != std::string::npos) {
+        return prefix.substr(1, exclamationPos - 1);
+    }
+    if (!prefix.empty() && prefix[0] == ':')
+        return prefix.substr(1);
+        
+    return prefix;
+}
 void processBotCommand(int bot_fd, std::string & FullMessage){
-    (void)bot_fd;
     std::vector<std::string> splitedCommand =
         splitVector(FullMessage, ' ');
 
-    for (size_t i = 0; i < splitedCommand.size(); i++){
-        std::cout << "splitedCommand: " << i << " = " << splitedCommand[i] << std::endl; 
-
-    }
     if (splitedCommand.empty()) {
         return; 
     }
-    if (splitedCommand.size() < 4) {
+
+    if (splitedCommand.size() < 3 || (splitedCommand.size() > 2 && splitedCommand[3].empty())) {
         std::string message = "Syntax Error: Need more args arguments for the Bot command. Use help for command list.";
+        SendPrivateMessage(bot_fd, splitedCommand[0], message);
         return; 
     }
+
     else if (splitedCommand.size() > 4)
     {
         std::string message = "Syntax Error: Too many arguments for the Bot command. Use help for command list.";
-        // SendPrivateMessage(bot_fd, splitedCommand[0], message);
+        SendPrivateMessage(bot_fd, splitedCommand[0], message);
         return;
     }
-    std::string Sendclient = splitedCommand[0];
-    std::string recivedCommand = splitedCommand[1];
-    
-    std::cout << "Name of the client " << Sendclient << std::endl;
-    std::cout << "Command" << recivedCommand << std::endl;
+    std::string prefix = splitedCommand[0];    
+    std::string command = splitedCommand[1];   
+    std::string target = splitedCommand[2];    
+    std::string msg = splitedCommand[3];
+    std::string Sendclient = extractNick(prefix);
+    std::cout << Sendclient << std::endl;
     return;
     // e_cmd_bot_type cmdType = getCmdTtype(splitedCommand[1]) ;
     // switch (cmdType) {
@@ -128,17 +138,52 @@ void processBotCommand(int bot_fd, std::string & FullMessage){
     //     // ...
     // }
 }
+void SendMessage(int bot_fd, const std::string &Message){
+    if (send(bot_fd, Message.c_str(), Message.length(), 0) == -1){
+        throw std::runtime_error("Bot connection failed during send.");
+    }
+}
 
-int setup_connection(const std::string& server_ip, int port) {
+std::string ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen, std::string &_ReadBuffer) {
+  std::string toRetrun = _ReadBuffer.substr(0, pos_found);
+  _ReadBuffer = _ReadBuffer.substr(pos_found + dilimiterLen);
+  return toRetrun;
+}
+
+std::string getServerAuth(int bot_socket_fd){
+    
+    std::string bot_in_buffer = "";
+    char buff[1025];
+    ssize_t bytes_read;
+
+    while (bot_in_buffer.find("\r\n") == std::string::npos) {
+        std::memset(buff, 0, 1025);
+        bytes_read = recv(bot_socket_fd, buff, 1024, 0);
+        if (bytes_read <= 0) {
+            if (bytes_read == 0)
+                throw std::runtime_error("Server closed connection unexpectedly.");
+            else
+                throw std::runtime_error("Recv error during auth.");
+        }
+        bot_in_buffer.append(buff, bytes_read);
+    }
+    int dilimiterLen;
+    size_t pos_found = bot_in_buffer.find("\r\n");
+    dilimiterLen = 2;
+    if (pos_found == std::string::npos)
+    {
+        pos_found = bot_in_buffer.find("\n");
+        dilimiterLen = 1;
+    }
+    std::string toRetrun = ExtractAndEraseFromBuffer(pos_found, dilimiterLen, bot_in_buffer);
+    return toRetrun;
+}
+
+int setup_connection(const std::string& server_ip, int port, const std::string& password, const std::string& nick_name) {
+
     int bot_socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); 
     if (bot_socket_fd < 0) {
         throw std::runtime_error("Failed to create socket.");
-    }
-
-    if (fcntl(bot_socket_fd, F_SETFL, O_NONBLOCK) == -1)
-    {
-        close(bot_socket_fd); 
-        throw std::runtime_error("fcntl failed.");
     }
 
     struct sockaddr_in serv_addr;
@@ -151,19 +196,30 @@ int setup_connection(const std::string& server_ip, int port) {
         close(bot_socket_fd);
         throw std::runtime_error("Connection refused or failed.");
     }
-    return bot_socket_fd;
-}
-
-void SendMessage(int bot_fd, const std::string &Message){
-    if (send(bot_fd, Message.c_str(), Message.length(), 0) == -1){
-        throw std::runtime_error("Bot connection failed during send.");
+    // if (fcntl(bot_socket_fd, F_SETFL, O_NONBLOCK) == -1)
+    // {
+    //     close(bot_socket_fd); 
+    //     throw std::runtime_error("fcntl failed.");
+    // }
+    std::string bot_user = "BotUser";
+    SendMessage(bot_socket_fd, "PASS " + password + "\r\n");
+    SendMessage(bot_socket_fd, "NICK " + nick_name + "\r\n");
+    SendMessage(bot_socket_fd, "USER " + bot_user + " 0 * :" + bot_user + " Service Bot\r\n");
+    std::string AuthResp = getServerAuth(bot_socket_fd);
+    if (AuthResp.find(" 001 ") != std::string::npos) {
+        std::cout << GREEN << "Bot successfully authenticated!" << std::endl;
+        return bot_socket_fd; 
     }
-}
-
-std::string ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen, std::string &_ReadBuffer) {
-  std::string toRetrun = _ReadBuffer.substr(0, pos_found);
-  _ReadBuffer = _ReadBuffer.substr(pos_found + dilimiterLen);
-  return toRetrun;
+    close(bot_socket_fd);
+    if (AuthResp.find(" 433 ") != std::string::npos) {
+        throw std::runtime_error("Bot connection failed: Nickname already in use (433).");
+    }
+    else if (AuthResp.find(" 464 ") != std::string::npos) {
+        throw std::runtime_error("Bot connection failed: Password incorrect (464).");
+    }
+    else {
+        throw std::runtime_error("Bot connection failed: Unknown server response.");
+    }
 }
 
 void ProcessAndExtractCommands(int bot_fd, std::string &_ReadBuffer) {
@@ -185,13 +241,8 @@ void ProcessAndExtractCommands(int bot_fd, std::string &_ReadBuffer) {
   }
 }
 
-void start_bot_loop(int bot_fd, const std::string& password, const std::string& nick_name) {
+void start_bot_loop(int bot_fd) {
     
-    std::string bot_nick = nick_name;
-    std::string bot_user = "BotUser";
-    SendMessage(bot_fd, "PASS " + password + "\r\n");
-    SendMessage(bot_fd, "NICK " + bot_nick + "\r\n");
-    SendMessage(bot_fd, "USER " + bot_user + " 0 * :" + bot_user + " Service Bot\r\n");
     std::string bot_in_buffer;
     while (true) {
 
@@ -228,8 +279,8 @@ int main(int argc, char *argv[]) {
     }
     
     try {
-        bot_fd = setup_connection(server_ip, port);
-        start_bot_loop(bot_fd, password, nick_name);
+        bot_fd = setup_connection(server_ip, port, password, nick_name);
+        start_bot_loop(bot_fd);
 
     } catch (const std::exception &e) {
         std::cerr << "Bot Fatal Error: " << e.what() << std::endl;
