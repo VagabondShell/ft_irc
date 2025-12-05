@@ -22,7 +22,7 @@ Client::Client(Client &other)
 
 Client::Client(int fd, Server *serverPtr)
     : _Fd(fd), _OutBuffer(""), _Registered(false), _NickSet(false),
-      _PassSet(false), _ServerPtr(serverPtr), _invisible(false) {}
+      _PassSet(false), _UserSet(false), _ServerPtr(serverPtr), _invisible(false) {}
 
 std::string Client::ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen) {
   std::string toRetrun = _ReadBuffer.substr(0, pos_found);
