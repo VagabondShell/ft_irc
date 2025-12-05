@@ -139,8 +139,6 @@ void processBotCommand(int bot_fd, std::string & FullMessage){
     std::string msg = splitedCommand[3];
     std::string Sendclient = extractNick(prefix);
     std::string cmd = getCmd(msg);
-    std::cout << Sendclient << std::endl;
-    std::cout << cmd << std::endl;
     e_cmd_bot_type cmdType = getCmdTtype(cmd) ;
     switch (cmdType) {
         case BOT_CMD_HELP:
@@ -288,24 +286,99 @@ void start_bot_loop(int bot_fd){
     }
 }
 
-int main(int argc, char *argv[]) {
+std::string trim(const std::string &str) {
+  size_t first = str.find_first_not_of(" \t\n\r");
+  if (std::string::npos == first) {
+    return str;
+  }
+  size_t last = str.find_last_not_of(" \t\n\r");
+  return str.substr(first, (last - first + 1));
+}
 
+bool isValidNickName(std::string nickname) {
+    if (nickname.empty()) {
+        return false;
+    }
+    char first_char = nickname[0];
+    if (first_char == '#' || first_char == ':' || std::isdigit(first_char))
+        return false;
+    
+    for (size_t i = 0; i < nickname.size(); i++) {
+        char c = nickname[i];
+        if (! (std::isalnum(c) || 
+               c == '[' || c == ']' || c == '{' || c == '}' || 
+               c == '\\' || c == '|')) 
+        {
+            return false;
+        }
+    }
+    return true; 
+}
+bool isValidPort(const char *port_str) {
+  if (!port_str || *port_str == '\0') 
+        return false;
+  char *endptr;
+  errno = 0;
+  long port = std::strtol(port_str, &endptr, 10);
+  if (*endptr != '\0' || errno == ERANGE || port < 1 || port > 65535)
+        return false;
+  return true;
+}
+
+bool isValidPassword(const std::string &password) {
+    if (password.empty()) {
+        std::cerr << "Error: Password cannot be empty." << std::endl;
+        return false;
+    }
+    size_t i = 0;
+    for (; i < password.length(); i++)
+    {
+      if (!std::isprint(password[i])) {
+        std::cerr << "Error: Password contains unprintable characters." << std::endl;
+        return false;
+      }
+    }
+    i = 0;
+    for (; i < password.length(); i++)
+    {
+      if (!std::isspace(password[i]))
+        break;
+    }
+    if (i == password.length())
+    {
+      std::cerr << "Error: Password cannot be empty." << std::endl;
+      return false;
+    }
+
+    return true;
+}
+
+int main(int argc, char *argv[]) {
     if (argc != 5) {
         std::cerr << "Usage: " << argv[0] << "<nick_name> <server_ip> <port> <password>" << std::endl;
         return 1;
     }
-
-    int bot_fd = -1;
-    std::string nick_name = argv[1];
-    std::string server_ip = argv[2];
-    int port = std::atoi(argv[3]); 
-    std::string password = argv[4];
-
-    if (port <= 1024 || port > 65535) {
-        std::cerr << "Error: Invalid port number." << std::endl;
+    std::string nick_name = trim(argv[1]);
+    if (!isValidNickName(nick_name)) {
+        std::cerr << "Error: Invalid Nickname format." << std::endl;
         return 1;
     }
-    
+    std::string server_ip = trim(argv[2]);
+    if (server_ip.empty()) {
+        std::cerr << "Error: Server IP cannot be empty." << std::endl;
+        return 1;
+    }
+    std::string port_str = trim(argv[3]);
+    if (!isValidPort(port_str.c_str())) {
+        std::cerr << "Error: Invalid port. Must be 1-65535." << std::endl;
+        return 1;
+    }
+    int port = std::atoi(port_str.c_str()); 
+    std::string password = trim(argv[4]);
+    if (!isValidPassword(password)) {
+        return 1;
+    }
+    int bot_fd = -1;
     try {
         bot_fd = setup_connection(server_ip, port, password, nick_name);
         start_bot_loop(bot_fd);

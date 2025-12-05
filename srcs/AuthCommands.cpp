@@ -13,7 +13,6 @@ bool Server::isValidNickName(std::string nickname) {
     if (nickname.empty()) {
         return false;
     }
-    std::cout << nickname << std::endl;
     char first_char = nickname[0];
     if (first_char == '#' || first_char == ':' || std::isdigit(first_char))
         return false;
@@ -40,11 +39,8 @@ void Server::handlePassCommand(Client *client, std::vector<std::string>args){
         return;
   }
   std::string client_password = trim(args[1]);
-  std::cout << "the password the client send *" << client_password << "*" <<  std::endl;
   if (_password == client_password){
     client->SetPassState(true); 
-    std::cout << GREEN 
-      << "[SUCCESS] " << " authenticated password successfully." << std::endl;
   }
   else
     client->SendReply("464", ":Password incorrect");
@@ -59,10 +55,6 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
         client->SendReply("431", ":No nickname given");
         return;
     }
-  // if (client->IsRegistered()) {
-  //       client->SendReply("462", ":You may not reregister");
-  //       return;
-  // }
   std::string new_nick = trim(args[1]);
   std::string old_nick = client->GetNickName();
   std::cout << "old_nick: " << old_nick << std::endl;
@@ -80,7 +72,6 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
   }
   if (!old_nick.empty()) {
         
-        // Logic to broadcast the NICK change message to network
          std::string prefix = ":" + old_nick + "!" + client->GetUserName() +
                          "@" + client->GetIpAddress();
         std::string mesg = prefix + " " + "NICK"+" " + new_nick;
@@ -110,10 +101,7 @@ void Server::handleUserCommand(Client *client, std::vector<std::string>args){
     return;
   }
   client->SetUserName(args[1]);
-  std::cout << "_userName: " << client->GetUserName() << std::endl;
   client->SetUserState(true); 
-  std::cout << GREEN 
-    << "[SUCCESS] " << " User  successfully." << std::endl;
   if (!client->IsRegistered())
       checkRegistration(client); 
 }
