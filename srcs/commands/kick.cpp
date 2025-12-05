@@ -49,8 +49,10 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
             continue;
         }
         channel_it->second->Broadcast((prefix + " KICK " + channel + " " + users[i] + comment), NULL);
+        
+        Client *clientByNick = GetClientByNick(users[i]);
+        clientByNick->removeMyChannel(channel_it->second);
         channel_it->second->RemoveMemberByNick(users[i]);
-        client->removeMyChannel(channel_it->second);
         if (channel_it->second->GetClientCount() == 0)
         {
             Channel *channelToDelete = channel_it->second;

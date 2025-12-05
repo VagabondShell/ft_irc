@@ -282,3 +282,7 @@ const std::set<Channel *> &Client::GetClientChannels() const
 {
   return mychannles;
 }
+Client * Channel::GetClientByNick(std::string nick)
+{
+  return _members[nick];
+}
