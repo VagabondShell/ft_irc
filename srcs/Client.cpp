@@ -24,7 +24,8 @@ Client::Client(int fd, Server *serverPtr)
     : _Fd(fd), _OutBuffer(""), _Registered(false), _NickSet(false),
       _PassSet(false), _UserSet(false), _ServerPtr(serverPtr), _invisible(false) {}
 
-std::string Client::ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen) {
+std::string Client::ExtractAndEraseFromBuffer(size_t pos_found, int dilimiterLen)
+{
   std::string toRetrun = _ReadBuffer.substr(0, pos_found);
   _ReadBuffer = _ReadBuffer.substr(pos_found + dilimiterLen);
   return toRetrun;
@@ -179,11 +180,13 @@ void Client::SetPollOut(bool state)
   }
   // TODO If the loop finishes without finding the FD, the client may have disconnected.
 }
-    
-// retreave the commmand and its argument then run it 
-void Client::ProcessAndExtractCommands() {
-  if (_ReadBuffer.size() > 512) {
-    SendReply("417" , ":Input line was too long");
+
+// retreave the commmand and its argument then run it
+void Client::ProcessAndExtractCommands()
+{
+  if (_ReadBuffer.size() > 512)
+  {
+    SendReply("417", ":Input line was too long");
     _ReadBuffer.clear();
     return;
   }
@@ -254,10 +257,10 @@ void Client::BrodcastFromClient(std::string msg, std::string new_nick)
 std::vector<std::string> Client::listOfInvitedChannles()
 {
   std::vector<std::string> list;
-  std::set<Channel *>::iterator it = Invited_channel.begin();
+  std::set<std::string>::iterator it = Invited_channel.begin();
   while (it != Invited_channel.end())
   {
-    list.push_back((*it)->GetName());
+    list.push_back((*it));
     it++;
   }
   return list;
@@ -266,13 +269,13 @@ void Client::addChannel(Channel *channel)
 {
   mychannles.insert(channel);
 }
-void Client::addInvitedChannel(Channel *channel)
+void Client::addInvitedChannel(std::string channleName)
 {
-  Invited_channel.insert(channel);
+  Invited_channel.insert(channleName);
 }
-void Client::removeInvitedchannel(Channel *channel)
+void Client::removeInvitedchannel(std::string channelName)
 {
-  Invited_channel.erase(channel);
+  Invited_channel.erase(channelName);
 }
 void Client::removeMyChannel(Channel *channel)
 {
@@ -282,7 +285,7 @@ const std::set<Channel *> &Client::GetClientChannels() const
 {
   return mychannles;
 }
-Client * Channel::GetClientByNick(std::string nick)
+Client *Channel::GetClientByNick(std::string nick)
 {
   return _members[nick];
 }

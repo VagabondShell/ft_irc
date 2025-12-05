@@ -29,9 +29,9 @@ public:
   const std::string GetUserName() const;
   const std::string & GetIpAddress() const ;
   void addChannel(Channel *channel);
-  void addInvitedChannel(Channel *channel);
+  void addInvitedChannel(std::string channleName);
   void removeMyChannel(Channel *channel);
-  void removeInvitedchannel(Channel *channel);
+  void removeInvitedchannel(std::string);
   void leftAllchannels();
   const std::set<Channel*>& GetClientChannels() const;
   std::vector<std::string>listOfInvitedChannles();
@@ -69,7 +69,7 @@ private:
   bool _UserSet;
   Server* _ServerPtr;
   std::set<Channel*> mychannles;
-  std::set<Channel*> Invited_channel;
+  std::set<std::string> Invited_channel;
   bool _invisible;
 };
 

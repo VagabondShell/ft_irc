@@ -3,9 +3,9 @@
 void Server::handlePartCommand(Client *client, std::vector<std::string> args)
 {
     std::map<std::string, Channel *>::iterator channel_it;
-    std::string reason="";
+    std::string reason = "";
     std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() +
-    "@" + client->GetIpAddress();
+                         "@" + client->GetIpAddress();
     if (args.size() < 2)
     {
         client->SendReply("461", "PART :Not enough parameters");
@@ -14,7 +14,7 @@ void Server::handlePartCommand(Client *client, std::vector<std::string> args)
     std::vector<std::string> channels = generateElements(args[1]);
     if (args.size() >= 3)
     {
-        reason =" :";
+        reason = " :";
         reason += args[2];
     }
     for (size_t i = 0; i < channels.size(); i++)
@@ -32,12 +32,12 @@ void Server::handlePartCommand(Client *client, std::vector<std::string> args)
             client->SendReply("442", content);
             continue;
         }
-        channel_it->second->Broadcast(prefix +" PART "+channels[i]+reason);
+        channel_it->second->Broadcast(prefix + " PART " + channels[i] + reason);
         channel_it->second->RemoveMember(client);
         client->removeMyChannel(channel_it->second);
-        if(channel_it->second->GetClientCount() == 0)
+        if (channel_it->second->GetClientCount() == 0)
         {
-            Channel* channelToDelete = channel_it->second;
+            Channel *channelToDelete = channel_it->second;
             _channels.erase(channels[i]);
             delete channelToDelete;
         }

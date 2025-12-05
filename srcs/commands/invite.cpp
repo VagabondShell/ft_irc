@@ -71,7 +71,7 @@ void Server::handleInviteCommand(Client *client, std::vector<std::string> args)
     if (targetClient)
     {
         std::string inviteMsg = prefix + " INVITE " + target + " " + channel;
-        targetClient->addInvitedChannel(channel_it->second);
+        targetClient->addInvitedChannel(channel_it->second->GetName());
         targetClient->GetOutBuffer().append(inviteMsg + "\r\n");
         targetClient->SetPollOut(true);
     }

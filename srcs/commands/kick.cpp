@@ -17,10 +17,10 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
     users = generateElements(args[2]);
     if (args.size() > 3)
     {
-        comment=" :";
+        comment = " :";
         comment += args[3];
     }
-    
+
     channel_it = _channels.find(channel);
     if (channel_it == _channels.end())
     {
@@ -49,7 +49,7 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
             continue;
         }
         channel_it->second->Broadcast((prefix + " KICK " + channel + " " + users[i] + comment), NULL);
-        
+
         Client *clientByNick = GetClientByNick(users[i]);
         clientByNick->removeMyChannel(channel_it->second);
         channel_it->second->RemoveMemberByNick(users[i]);
