@@ -13,6 +13,7 @@
 #include <fcntl.h>      
 #include <cerrno>       
 #define GREEN    "\x1b[32m" 
+
 enum e_cmd_bot_type {
     BOT_CMD_HELP    = 0,
     BOT_CMD_TIME    = 1,
@@ -182,7 +183,7 @@ std::string getServerAuth(int bot_socket_fd){
                 throw std::runtime_error("Server closed connection unexpectedly.");
             else if (bytes_read < 0) {
                 if (errno != EWOULDBLOCK || errno != EAGAIN)
-                    std::cerr << "recv error: " << strerror(errno) << std::endl;
+                    throw std::runtime_error("recv error.");
             }
         }
         if (bytes_read > 0)
