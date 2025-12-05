@@ -10,11 +10,11 @@
 class Client;
 
 struct ChannelModes {
-    bool inviteOnly;        // +i
-    bool topicOpOnly;       // +t
-    bool passwordSet;       // +k
+    bool inviteOnly;       
+    bool topicOpOnly;      
+    bool passwordSet;      
     std::string password;
-    bool userLimitSet;      // +l
+    bool userLimitSet;     
     size_t userLimit;
 
     ChannelModes()

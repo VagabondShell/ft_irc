@@ -175,53 +175,6 @@ void Server::execute_modes(Client* client, Channel *channel, const std::vector<s
     }
 }
 
-std::string filterValidModes(const std::string& modeStr, int count, const std::vector<std::string>& params) 
-{
-    std::string modeLetters;
-    std::string modeParams;
-    int executed = 0;
-    size_t paramIndex = 0;
-    bool set_mode = true;
-
-    for (size_t i = 0; i < modeStr.size(); ++i) {
-        char c = modeStr[i];
-
-        if (c == '+') {
-            modeLetters += c;
-            set_mode = true;
-            continue;
-        }
-        
-        if (c == '-') {
-            modeLetters += c;
-            set_mode = false;
-            continue;
-        }
-
-        if (c != 'i' && c != 't' && c != 'k' && c != 'l' && c != 'o') 
-            continue;
-
-
-        if (executed >= count)
-            break;
-
-        modeLetters += c;
-
-        if (c == 'o' || (c == 'k' && set_mode) || (c == 'l' && set_mode)) {
-            if (paramIndex < params.size() && !params[paramIndex].empty()) {
-                modeParams += " " + params[paramIndex];
-            }
-            paramIndex++;
-        }
-
-        executed++;
-    }
-
-    return modeLetters + modeParams;
-}
-
-
-
 
 void Server::handleModeCommand(Client *client, std::vector<std::string> args)
 {
@@ -231,12 +184,16 @@ void Server::handleModeCommand(Client *client, std::vector<std::string> args)
     }
 
     std::string channelName = args[1];
-    Channel* channel = _channels[channelName];
+    std::map<std::string, Channel*>::iterator it_ch = _channels.find(channelName);
 
-    if (_channels.find(channelName) == _channels.end()) {
+
+    if (it_ch == _channels.end()) 
+    {
         client->SendReply("403", channelName + " :No such channel");
         return;
     }
+    Channel* channel = it_ch->second;
+
     if (args.size() == 2) {
 
         std::string modes = channel->GetModes().toString();
