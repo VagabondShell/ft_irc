@@ -280,8 +280,9 @@ void StartBotLoop(int BotFd) {
             BotInBuffer.append(Buff, BytesRead);
             ProcessAndExtractCommands(BotFd, BotInBuffer);
         } else if (BytesRead < 0) {
+
             if (errno != EWOULDBLOCK && errno != EAGAIN)
-                std::cerr << "recv error: " << strerror(errno) << std::endl;
+                throw std::runtime_error("recv error.");
         }
     }
 }
@@ -339,8 +340,7 @@ bool IsValidPassword(const std::string &Password) {
         return false;
       }
     }
-    I = 0; // Reset counter for the next loop
-    for (; I < Password.length(); I++)
+    I = 0;     for (; I < Password.length(); I++)
     {
       if (!std::isspace(Password[I]))
         break;
