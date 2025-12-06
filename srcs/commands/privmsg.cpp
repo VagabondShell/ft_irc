@@ -49,13 +49,13 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
     if (it == _nicknames.end())
     {
       client->SendReply("401", target + " :No such nick/channel");
-      continue;;
+      continue;
     }
     Client *receiver = it->second;
     if (!receiver->IsRegistered())
     {
       client->SendReply("401", target + " :No such nick/channel");
-      continue;;
+      continue;
     }
     std::string prefix = ":" + client->GetNickName() + "!" +
       client->GetUserName() + "@" +
@@ -64,7 +64,7 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
     std::string msg = prefix + " PRIVMSG " + target + " :" + message + "\r\n";
     if (send(receiver->GetFd(), msg.c_str(), msg.length(), 0) == -1)
       std::cerr << "send() failed to client" << std::endl;
-
+    continue;
   }
 
 
