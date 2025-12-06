@@ -164,7 +164,6 @@ void Client::SetPollOut(bool state)
   std::vector<struct pollfd> &poll_fds = _ServerPtr->getPollfds();
   for (size_t i = 0; i < poll_fds.size(); ++i)
   {
-
     if (poll_fds[i].fd == _Fd)
     {
       if (state == true)
@@ -178,10 +177,8 @@ void Client::SetPollOut(bool state)
       return;
     }
   }
-  // TODO If the loop finishes without finding the FD, the client may have disconnected.
 }
 
-// retreave the commmand and its argument then run it
 void Client::ProcessAndExtractCommands()
 {
   if (_ReadBuffer.size() > 512)

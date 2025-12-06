@@ -112,9 +112,7 @@ bool Server::handleOutgoingData(int clientFd){
             client->SetPollOut(false); 
         }
     } else if (bytes_sent < 0) {
-        if (errno != EWOULDBLOCK && errno != EAGAIN) {
-            return true;
-        }
+        return false;
     }
     return false;
 }
@@ -175,12 +173,7 @@ bool Server::handleClientCommand(const int current_fd) {
     if (bytes_read == 0)
         return true;
     else if (bytes_read < 0) {
-        if (errno == EWOULDBLOCK || errno == EAGAIN)
-            return false; 
-        else {
-            std::cerr << "recv error: " << strerror(errno) << std::endl;
-            return true; 
-        }
+        return false;
     }
     else {
         temp_buffer[bytes_read] = '\0';
@@ -321,8 +314,7 @@ void Server::run() {
 
             }
             if (disconnected) {
-                disconnectClient(current_fd); 
-                
+                disconnectClient(current_fd);       
                 _pollFds.erase(_pollFds.begin() + i); 
                 i--; 
                 continue;
