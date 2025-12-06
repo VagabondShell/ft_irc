@@ -23,6 +23,19 @@ void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
 
   Channel* channel = it_ch->second;
 
+  if (!channel->IsMember(client)) 
+  {
+    client->SendReply("442", channelName + " :You're not on that channel");
+    return;
+  }
+
+  if (!channel->IsOperator(client) && channel->GetModes().topicOpOnly == true) 
+  {
+    client->SendReply("482", ":You're not channel operator");
+    return;
+  }
+
+
   if (args.size() == 2)
   {
     if (channel->GetTopic().empty()) 
@@ -38,24 +51,12 @@ void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
 
   std::string newTopic = args[2];
 
-  if (!channel->IsMember(client)) 
-  {
-    client->SendReply("442", channelName + " :You're not on that channel");
-    return;
-  }
-
-  if (!channel->IsOperator(client) && channel->GetModes().topicOpOnly == true) 
-  {
-    client->SendReply("482", ":You're not channel operator");
-    return;
-  }
-  
   channel->SetTopic(newTopic);
   channel->setTopicSetter(client->GetNickName());
 
   time_t now = time(NULL);
   channel->setTopicSetTime(channel->timeToString(now));
-  
+
   std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() + "@" + client->GetIpAddress();
   std::string topicMsg = prefix + " TOPIC " + channelName + " :" + newTopic;
   channel->Broadcast(topicMsg, NULL);

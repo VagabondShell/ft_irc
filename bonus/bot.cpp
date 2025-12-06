@@ -175,7 +175,7 @@ std::string GetServerAuth(int BotSocketFd) {
                 throw std::runtime_error("Server closed connection unexpectedly.");
             else if (BytesRead < 0) {
                 if (errno != EWOULDBLOCK || errno != EAGAIN)
-                    std::cerr << "recv error: " << strerror(errno) << std::endl;
+                    throw std::runtime_error("recv error.");
             }
         }
         if (BytesRead > 0)

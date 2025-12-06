@@ -56,7 +56,7 @@ public:
   Client *GetClientByNick(std::string nick);
   std::map<std::string, Client *> GetNickNames() const;
   
-  int execute_modes(Client* client, const std::string& channelName, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams);
+  void execute_modes(Client* client, Channel *channel, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams);
 
 private:
 
