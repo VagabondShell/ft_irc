@@ -25,7 +25,7 @@ struct ChannelModes {
           userLimit(0)
     {}
 
-    std::string toString() const
+    std::string toString(bool is_op) const
     {
         std::string flags;
         std::string params;
