@@ -44,6 +44,7 @@ public:
   std::vector<struct pollfd> & getPollfds();
   void disconnectClient(int currentFd);
   void handlePrivmsgCommand(Client *client, std::vector<std::string>args); 
+  void clearChannel(Channel *channel);
   void handleModeCommand(Client *client, std::vector<std::string> args);
   void handleJoinCommand(Client *client, std::vector<std::string> args);
   void handleInviteCommand(Client *client, std::vector<std::string> args);
@@ -76,6 +77,7 @@ private:
   std::map<std::string, Client *> _nicknames;
   std::map<std::string, e_cmd_type> _commandMap;
   std::map<std::string, Channel *> _channels;
+
   time_t _StartTime;
 
 };

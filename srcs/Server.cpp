@@ -1,5 +1,16 @@
 #include "../includes/Server.hpp"
-
+void Server::clearChannel(Channel *channel)
+{
+    
+    for (std::map<std::string, Client*>::iterator it = _nicknames.begin(); it != _nicknames.end(); it++)
+    {
+        if(channel->IsInvited(it->first))
+        {
+            channel->UninviteMember(it->first);
+            it->second->removeInvitedchannel(channel->GetName());
+        }
+    }
+}
 Server::~Server() {
     if (_listenerFd != -1)
         close(_listenerFd);

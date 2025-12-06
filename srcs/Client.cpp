@@ -219,6 +219,7 @@ void Client::leftAllchannels()
     if (chan->GetClientCount() == 0)
     {
       this->_ServerPtr->remove_channel(chan->GetName());
+      this->_ServerPtr->clearChannel(chan);
       delete chan;
     }
     mychannles.erase(it++);

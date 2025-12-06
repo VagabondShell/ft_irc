@@ -39,6 +39,7 @@ void Server::handlePartCommand(Client *client, std::vector<std::string> args)
         {
             Channel *channelToDelete = channel_it->second;
             _channels.erase(channels[i]);
+            clearChannel(channelToDelete);
             delete channelToDelete;
         }
     }
