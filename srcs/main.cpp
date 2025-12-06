@@ -41,7 +41,7 @@ bool isValidPassword(const std::string &password) {
 int main(int argc, char *argv[]) {
   if (argc != 3) {
     std::cerr << "Error: Usage: " << argv[0]
-              << " \"./ircserv <port> <password>\"" << std::endl;
+              <<  " <port> <password>" << std::endl;
     return 1;
   }
   signal(SIGPIPE, SIG_IGN);

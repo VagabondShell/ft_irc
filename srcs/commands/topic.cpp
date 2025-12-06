@@ -23,21 +23,6 @@ void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
 
   Channel* channel = it_ch->second;
 
-  if (args.size() == 2)
-  {
-    if (channel->GetTopic().empty()) 
-    {
-      client->SendReply("331", channelName + " :No topic is set");
-    } 
-    else 
-    {
-      client->SendReply("332", channelName + " " + channel->GetTopic());
-    }
-    return;
-  }
-
-  std::string newTopic = args[2];
-
   if (!channel->IsMember(client)) 
   {
     client->SendReply("442", channelName + " :You're not on that channel");
@@ -49,16 +34,31 @@ void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
     client->SendReply("482", ":You're not channel operator");
     return;
   }
-  
+
+
+  if (args.size() == 2)
+  {
+    if (channel->GetTopic().empty()) 
+    {
+      client->SendReply("331", channelName + " :No topic is set");
+    } 
+    else 
+    {
+      client->SendReply("332", channelName + " " + channel->GetTopic());
+      client->SendReply("333", channelName + " " + channel->getTopicSetter() + " " + channel->getTopicSetTime());
+    }
+    return;
+  }
+
+  std::string newTopic = args[2];
+
   channel->SetTopic(newTopic);
   channel->setTopicSetter(client->GetNickName());
 
   time_t now = time(NULL);
   channel->setTopicSetTime(channel->timeToString(now));
-  
+
   std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() + "@" + client->GetIpAddress();
   std::string topicMsg = prefix + " TOPIC " + channelName + " :" + newTopic;
   channel->Broadcast(topicMsg, NULL);
-
-  client->SendReply("332", channelName + " :" + newTopic);
 }

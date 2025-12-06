@@ -120,7 +120,7 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
             content = channels[i] +" :No such channel";
             client->SendReply("403", content);
         }
-       else
+        else
        {
             channel_it = _channels.find(channels[i]);
             if(channel_it == _channels.end())

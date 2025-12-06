@@ -3,7 +3,6 @@
 #include <sstream>
 
 
-
 void create_modes(const std::vector<std::string>& args, std::vector<std::string>& modes, std::vector<std::string>& modeParams, Client* client) 
 {
     if (args.size() < 3) 
@@ -51,18 +50,12 @@ void create_modes(const std::vector<std::string>& args, std::vector<std::string>
 }
 
 
-int Server::execute_modes(Client* client, const std::string& channelName, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams) 
+void Server::execute_modes(Client* client, Channel *channel, const std::vector<std::string>& modes, const std::vector<std::string>& modeParams) 
 {
-    Channel* channel = _channels[channelName];
     if (!channel)
-        return -1;
+        return;
     size_t paramIndex = 0;
 
-
-    if (!channel->IsOperator(client)) {
-        client->SendReply("482", channelName + " :You're not channel operator");
-        return -1;
-    }
     
     int i = 0;
     for (i = 0; i < (int)modes.size(); ++i) 
@@ -77,10 +70,13 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
         if (c == 'i') 
         {
             channel->GetModes().inviteOnly = set_mode;
+            channel->Broadcast(":ft_irc.local MODE " + channel->GetName() + " " + mode_str, NULL);
         } 
         else if (c == 't') 
         {
             channel->GetModes().topicOpOnly = set_mode;
+            channel->Broadcast(":ft_irc.local MODE " + channel->GetName() + " " + mode_str, NULL);
+
         } 
         else if (c == 'k') 
         {
@@ -88,17 +84,26 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
             {
                 if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty()) 
                 {
-                    client->SendReply("696", channelName + " " + c +" :No parameter provided");
-                    return -1;
+                    client->SendReply("696", channel->GetName() + " " + c +" :No parameter provided");
+                    continue;
                 }
+
                 std::string new_pass = modeParams[paramIndex++];
+                if (new_pass.find(" ") != std::string::npos)
+                {
+                    client->SendReply("525", channel->GetName() + " :Key is not well-formed");
+                    continue;
+                }
                 channel->GetModes().passwordSet = true;
                 channel->GetModes().password = new_pass;
+                channel->Broadcast(":ft_irc.local MODE " + channel->GetName() + " " + mode_str + " " + new_pass, NULL);
+
             } 
             else 
             {
                 channel->GetModes().passwordSet = false;
                 channel->GetModes().password = "";
+                channel->Broadcast(":ft_irc.local MODE " + channel->GetName() + " " + mode_str, NULL); 
             }
         } 
         else if (c == 'l') 
@@ -107,34 +112,34 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
             {
                 if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty()) 
                 {
-                    client->SendReply("696", channelName + " " + c +" :No parameter provided");
-                    return -1;
+                    client->SendReply("696", channel->GetName() + " " + c +" :No parameter provided");
+                    continue;
                 }
-
-                // size_t limit = std::stoull(modeParams[paramIndex++]);
-                
-                size_t limit = atoi(modeParams[paramIndex++].c_str());
+ 
+                size_t limit = atoi(modeParams[paramIndex].c_str());
                 if (limit <= 0) 
                 {
-                    client->SendReply("696", channelName + " " + c +" :Invalid limit parameter");
-                    return -1;
+                    client->SendReply("696", channel->GetName() + " " + c +" :Invalid limit parameter");
+                    continue;
                 }
-                paramIndex++;
                 channel->GetModes().userLimitSet = true;
                 channel->GetModes().userLimit = (size_t)limit;
+                channel->Broadcast(":ft_irc.local MODE " + channel->GetName() + " " + mode_str + " " + modeParams[paramIndex].c_str(), NULL);
+                paramIndex++;
             } 
             else 
             {
                 channel->GetModes().userLimitSet = false;
                 channel->GetModes().userLimit = 0;
+                channel->Broadcast(":ft_irc.local MODE " + channel->GetName() + " " + mode_str, NULL); 
             }
         }
         else if (c == 'o')
         {
             if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty())
             {
-                client->SendReply("696", channelName + " " + c +" :No parameter provided");
-                return -1;
+                client->SendReply("696", channel->GetName() + " " + c +" :No parameter provided");
+                continue;
             }
 
             std::string tobe_operator = modeParams[paramIndex++];
@@ -144,72 +149,26 @@ int Server::execute_modes(Client* client, const std::string& channelName, const 
             if (itClient == _nicknames.end())
             {
                 client->SendReply("401", tobe_operator + " :No such nick");
-                return -1;
+                continue;
             }
 
             Client* target = itClient->second;
 
             if (!channel->IsMember(target))
             {
-                client->SendReply("441", tobe_operator + " " + channelName + " :They aren't on that channel");
-                return -1;
+                client->SendReply("441", tobe_operator + " " + channel->GetName() + " :They aren't on that channel");
+                continue;
             }
 
             if (set_mode)
                 channel->AddOperator(target);
             else
                 channel->RemoveOperator(target);
+    
+            channel->Broadcast(":ft_irc.local MODE " + channel->GetName() + " " + mode_str + " " +  tobe_operator, NULL);         
         }
     }
-    return i;
 }
-
-std::string filterValidModes(const std::string& modeStr, int count, const std::vector<std::string>& params) 
-{
-    std::string modeLetters;
-    std::string modeParams;
-    int executed = 0;
-    size_t paramIndex = 0;
-    bool set_mode = true;
-
-    for (size_t i = 0; i < modeStr.size(); ++i) {
-        char c = modeStr[i];
-
-        if (c == '+') {
-            modeLetters += c;
-            set_mode = true;
-            continue;
-        }
-        
-        if (c == '-') {
-            modeLetters += c;
-            set_mode = false;
-            continue;
-        }
-
-        if (c != 'i' && c != 't' && c != 'k' && c != 'l' && c != 'o') 
-            continue;
-
-
-        if (executed >= count)
-            break;
-
-        modeLetters += c;
-
-        if (c == 'o' || (c == 'k' && set_mode) || (c == 'l' && set_mode)) {
-            if (paramIndex < params.size() && !params[paramIndex].empty()) {
-                modeParams += " " + params[paramIndex];
-            }
-            paramIndex++;
-        }
-
-        executed++;
-    }
-
-    return modeLetters + modeParams;
-}
-
-
 
 
 void Server::handleModeCommand(Client *client, std::vector<std::string> args)
@@ -218,33 +177,40 @@ void Server::handleModeCommand(Client *client, std::vector<std::string> args)
         client->SendReply("461", "MODE :Not enough parameters");
         return;
     }
+
+    std::string channelName = args[1];
+    std::map<std::string, Channel*>::iterator it_ch = _channels.find(channelName);
+
+
+    if (it_ch == _channels.end()) 
+    {
+        client->SendReply("403", channelName + " :No such channel");
+        return;
+    }
+    Channel* channel = it_ch->second;
+    bool is_op = true;
+    if (!channel->IsOperator(client)) 
+        is_op = false;
+
     if (args.size() == 2) {
-        std::string channelName = args[1];
-        if (_channels.find(channelName) == _channels.end()) {
-            client->SendReply("403", channelName + " :No such channel");
-            return;
-        }
-        Channel* channel = _channels[channelName];
-        std::string modes = channel->GetModes().toString();
+        std::string modes = channel->GetModes().toString(is_op);
         client->SendReply("324", channelName + " " + modes);
         std::stringstream time_str;
         time_str << channel->GetCreationTime();
         client->SendReply("329", channelName + " " + time_str.str());
         return;
     }
-    std::string target = args[1];
+    if (!is_op) {
+        client->SendReply("482", channel->GetName() + " :You're not channel operator");
+        return ;
+    }
+    
     std::string modes = args[2];
 
     std::vector<std::string> modes_vec;
     std::vector<std::string> parms;
-
     
     create_modes(args, modes_vec, parms, client);
-    int success_count = execute_modes(client, target, modes_vec, parms);
-    if (success_count > 0)
-    {
-        std::string notify = ":ft_irc.local MODE " + target + " " + filterValidModes(modes, success_count, parms);
+    execute_modes(client, channel, modes_vec, parms);
 
-        _channels[target]->Broadcast(notify, NULL);
-    }   
 }
