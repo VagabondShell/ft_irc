@@ -17,6 +17,8 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
   std::vector<std::string> recipients = generateElements(args[1]);
   for (size_t i = 0; i < recipients.size(); i++){
     std::string target = recipients[i];
+    if (target.empty())
+      continue;
     if (target[0] == '#') 
     {
       std::map<std::string, Channel*>::iterator chan_list = _channels.find(target);
