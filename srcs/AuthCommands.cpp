@@ -30,13 +30,13 @@ bool Server::isValidNickName(std::string nickname) {
 }
 
 void Server::handlePassCommand(Client *client, std::vector<std::string>args){
-  if (args.size() < 2 || trim(args[1]).empty()) { 
-        client->SendReply("461", "PASS :Not enough parameters");
-        return; 
-  }
   if (client->IsRegistered()) {
         client->SendReply("462", ":You may not reregister");
         return;
+  }
+  if (args.size() < 2 || trim(args[1]).empty()) { 
+        client->SendReply("461", "PASS :Not enough parameters");
+        return; 
   }
   std::string client_password = trim(args[1]);
   if (_password == client_password){
@@ -59,7 +59,7 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
   std::string old_nick = client->GetNickName();
   std::cout << "old_nick: " << old_nick << std::endl;
   if (!isValidNickName(new_nick)){
-      client->SendReply("432", new_nick + ":Erroneus nickname");
+      client->SendReply("432", new_nick + " :Erroneus nickname");
       return;
   }
 
@@ -92,12 +92,12 @@ void Server::handleUserCommand(Client *client, std::vector<std::string>args){
             client->SendReply("451",":You have not registered");
             return; 
   }
-  if (args.size() < 2 || trim(args[1]).empty() || args.size() < 5  || (args .size() > 4 && args[4].empty())) { 
-    client->SendReply("461", ":Not enough parameters");
-    return;
-  }
   if (client->IsRegistered()) {
     client->SendReply("462", ":You may not reregister");
+    return;
+  }
+  if (args.size() < 2 || trim(args[1]).empty() || args.size() < 5  || (args .size() > 4 && args[4].empty())) { 
+    client->SendReply("461", "USER :Not enough parameters");
     return;
   }
   client->SetUserName(args[1]);

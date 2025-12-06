@@ -1,58 +1,61 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <sstream>
-#include <cstring>
-#include <cstdlib>
-#include <ctime>
-#include <stdexcept>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <cerrno>
+#include <iostream>     
+#include <string>       
+#include <vector>       
+#include <sstream>      
+#include <cstring>      
+#include <cstdlib>      
+#include <ctime>        
+#include <stdexcept>    
+#include <sys/socket.h> 
+#include <netinet/in.h> 
+#include <arpa/inet.h>  
+#include <unistd.h>     
+#include <fcntl.h>      
+#include <cerrno>       
+#define GREEN    "\x1b[32m" 
 
-#define GREEN "\033[1;32m"
-
-enum ECmdBotType {
+enum e_cmd_bot_type {
     BOT_CMD_HELP    = 0,
     BOT_CMD_TIME    = 1,
-    BOT_CMD_JOKE    = 2, 
+    BOT_CMD_JOKE  = 2, 
     BOT_CMD_UNKNOWN = 4,
 };
 
-std::vector<std::string> SplitVector(const std::string &InputString, char Delimiter) {
-    std::string PositionalPart = InputString;
+std::vector<std::string> SplitVector(const std::string &InputString, 
+                                     char Delimiter) {
+    std::string PositionalPart;
+    PositionalPart = InputString;
     std::vector<std::string> Tokens;
-    std::stringstream Ss(PositionalPart);
+    std::stringstream StringStream(PositionalPart);
     std::string Segment;
-    while (std::getline(Ss, Segment, Delimiter)) {
+    while (std::getline(StringStream, Segment, Delimiter)) {
         if (!Segment.empty())
             Tokens.push_back(Segment);
     }
     return Tokens;
 }
 
-ECmdBotType GetCmdType(const std::string &CmdName) {
-    static const std::string BotCmdsNames[] = {
+e_cmd_bot_type GetCmdType(const std::string & CmdName)
+{
+    const std::string BotCmdsNames[] = {
         "!help",
         "!time",
         "!joke",
     };
     for (size_t i = 0; i < 3; i++) {
         if (CmdName == BotCmdsNames[i])
-            return ECmdBotType(i);
+            return e_cmd_bot_type(i);
     }
     return BOT_CMD_UNKNOWN;
 }
 
-void SendPrivateMessage(int BotFd, std::string &SendClient, const std::string &Message) {
+void SendPrivateMessage(int BotFd, std::string & SendClient, const std::string &Message){
     std::string FullMessage = "PRIVMSG " + SendClient + " :" + Message + "\r\n";
-    if (send(BotFd, FullMessage.c_str(), FullMessage.length(), 0) == -1) {
+    if (send(BotFd, FullMessage.c_str(), FullMessage.length(), 0) == -1){
         throw std::runtime_error("Bot connection failed during send.");
     }
 }
+
 
 void HandleBotJoke(int BotFd, std::string &SendClient) {
     std::vector<std::string> Jokes;
@@ -61,16 +64,17 @@ void HandleBotJoke(int BotFd, std::string &SendClient) {
     Jokes.push_back("Q. How did the first program die? A. It was executed.");
     Jokes.push_back("Q. Why do Java programmers wear glasses? A. They can’t C#");
     Jokes.push_back("Q. What is the difference between C++ and C? A. Just 1.");
-    Jokes.push_back("Q. Whats the object-oriented way to become wealthy? A. Inheritance");
+    Jokes.push_back("Q. What's the object-oriented way to become wealthy? A. Inheritance");
     Jokes.push_back("Q. What do computers and air conditioners have in common? A. They both become useless when you open windows.");
     
     size_t JokeCount = Jokes.size();
-    int RandomIndex = std::rand() % JokeCount; 
+    int RandomIndex = rand() % JokeCount; 
     std::string SelectedJoke = Jokes[RandomIndex];
     SendPrivateMessage(BotFd, SendClient, SelectedJoke);
 }
 
-void HelpCmd(int BotFd, std::string &SendClient) {
+void HelpCmd(int BotFd, std::string & Sendclient){
+    std::string message;
     std::vector<std::string> HelpMessages;
     HelpMessages.push_back("-- FTBot Command List --");
     HelpMessages.push_back("!help :Displays this command list.");
@@ -78,21 +82,19 @@ void HelpCmd(int BotFd, std::string &SendClient) {
     HelpMessages.push_back("!joke :Tells a random programming joke.");
     HelpMessages.push_back("------------------------");
     for (size_t i = 0; i < HelpMessages.size(); i++)
-         SendPrivateMessage(BotFd, SendClient, HelpMessages[i]);
+         SendPrivateMessage(BotFd, Sendclient, HelpMessages[i]);
 }
 
 void TimeCmd(int BotFd, std::string &SendClient) {
-     time_t RawSeconds;
-     time(&RawSeconds);
-     struct tm *TimeInfo = localtime(&RawSeconds);
-     char TimeBuffer[100];
-     size_t Len = strftime(TimeBuffer, sizeof(TimeBuffer), 
+    time_t RawSeconds;
+    time(&RawSeconds);
+    struct tm *TimeInfo = localtime(&RawSeconds);
+    char TimeBuffer[100];
+    size_t Len = strftime(TimeBuffer, sizeof(TimeBuffer), 
                            "Current server time: %H:%M:%S on %Y-%m-%d", 
                            TimeInfo);
-     if (Len > 0) {
-         std::string TimeMsg(TimeBuffer);
-         SendPrivateMessage(BotFd, SendClient, TimeMsg);
-     }
+    if (Len > 0)
+        SendPrivateMessage(BotFd, SendClient, TimeBuffer);
 }
 
 std::string ExtractNick(const std::string& Prefix) {
@@ -122,17 +124,24 @@ void ProcessBotCommand(int BotFd, std::string &FullMessage) {
         return; 
     }
 
-    if (SplitCommand.size() < 4) {
-        // Not intended for us or malformed
+    if (SplitCommand.size() < 3 || (SplitCommand.size() > 2 && SplitCommand[3].empty())) {
+        std::string Message = "Syntax Error: Need more arguments for the Bot command. Use help for command list.";
+        SendPrivateMessage(BotFd, SplitCommand[0], Message);
         return; 
+    }
+    else if (SplitCommand.size() > 4) {
+        std::string Message = "Syntax Error: Too many arguments for the Bot command. Use help for command list.";
+        SendPrivateMessage(BotFd, SplitCommand[0], Message);
+        return;
     }
 
     std::string Prefix = SplitCommand[0];    
     std::string Msg = SplitCommand[3];
     std::string SendClient = ExtractNick(Prefix);
     std::string Cmd = GetCmd(Msg);
-    ECmdBotType CmdType = GetCmdType(Cmd);
-
+    
+    e_cmd_bot_type CmdType = GetCmdType(Cmd); 
+    
     switch (CmdType) {
         case BOT_CMD_HELP:
             HelpCmd(BotFd, SendClient);
@@ -144,8 +153,10 @@ void ProcessBotCommand(int BotFd, std::string &FullMessage) {
             HandleBotJoke(BotFd, SendClient);
             break;
         case BOT_CMD_UNKNOWN:
-            std::string Message = Cmd + " is not a recognized command. Use !help for a list of available commands.";
-            SendPrivateMessage(BotFd, SendClient, Message);
+            {
+                std::string Message = Cmd + " is not a recognized command. Use !help for a list of available commands.";
+                SendPrivateMessage(BotFd, SendClient, Message);
+            }
             break;
     }
 }
@@ -174,7 +185,7 @@ std::string GetServerAuth(int BotSocketFd) {
             if (BytesRead == 0)
                 throw std::runtime_error("Server closed connection unexpectedly.");
             else if (BytesRead < 0) {
-                if (errno != EWOULDBLOCK || errno != EAGAIN)
+                if (errno != EWOULDBLOCK && errno != EAGAIN)
                     throw std::runtime_error("recv error.");
             }
         }
@@ -185,15 +196,18 @@ std::string GetServerAuth(int BotSocketFd) {
     int DelimiterLen;
     size_t PosFound = BotInBuffer.find("\r\n");
     DelimiterLen = 2;
+    
     if (PosFound == std::string::npos) {
         PosFound = BotInBuffer.find("\n");
         DelimiterLen = 1;
     }
+    
     std::string ToReturn = ExtractAndEraseFromBuffer(PosFound, DelimiterLen, BotInBuffer);
     return ToReturn;
 }
 
 int SetupConnection(const std::string& ServerIp, int Port, const std::string& Password, const std::string& NickName) {
+
     int BotSocketFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); 
     if (BotSocketFd < 0) {
         throw std::runtime_error("Failed to create socket.");
@@ -209,6 +223,11 @@ int SetupConnection(const std::string& ServerIp, int Port, const std::string& Pa
         close(BotSocketFd);
         throw std::runtime_error("Connection refused or failed.");
     }
+    if (fcntl(BotSocketFd, F_SETFL, O_NONBLOCK) == -1)
+    {
+        close(BotSocketFd); 
+        throw std::runtime_error("fcntl failed.");
+    }
     
     std::string BotUser = "BotUser";
     SendMessage(BotSocketFd, "PASS " + Password + "\r\n");
@@ -219,21 +238,17 @@ int SetupConnection(const std::string& ServerIp, int Port, const std::string& Pa
     
     if (AuthResp.find(" 001 ") != std::string::npos) {
         std::cout << GREEN << "Bot successfully authenticated!" << std::endl;
-        
-        // Move fcntl here (after successful auth)
-        if (fcntl(BotSocketFd, F_SETFL, O_NONBLOCK) == -1) {
-            close(BotSocketFd); 
-            throw std::runtime_error("fcntl failed.");
-        }
         return BotSocketFd; 
     }
     
     close(BotSocketFd);
     if (AuthResp.find(" 433 ") != std::string::npos) {
         throw std::runtime_error("Bot connection failed: Nickname already in use (433).");
-    } else if (AuthResp.find(" 464 ") != std::string::npos) {
+    }
+    else if (AuthResp.find(" 464 ") != std::string::npos) {
         throw std::runtime_error("Bot connection failed: Password incorrect (464).");
-    } else {
+    }
+    else {
         throw std::runtime_error("Bot connection failed: Unknown server response.");
     }
 }
@@ -242,17 +257,11 @@ void ProcessAndExtractCommands(int BotFd, std::string &ReadBuffer) {
   int DelimiterLen;
   size_t PosFound = ReadBuffer.find("\r\n");
   DelimiterLen = 2;
-  if (PosFound == std::string::npos) {
-    PosFound = ReadBuffer.find("\n");
-    DelimiterLen = 1;
-  }
 
   while (PosFound != std::string::npos) {
     std::string CommandLine = ExtractAndEraseFromBuffer(PosFound, DelimiterLen, ReadBuffer);
     ProcessBotCommand(BotFd, CommandLine);
     PosFound = ReadBuffer.find("\r\n");
-    if (PosFound == std::string::npos)
-      PosFound = ReadBuffer.find("\n");
   }
 }
 
@@ -294,8 +303,8 @@ bool IsValidNickName(std::string Nickname) {
     if (FirstChar == '#' || FirstChar == ':' || std::isdigit(FirstChar))
         return false;
     
-    for (size_t i = 0; i < Nickname.size(); i++) {
-        char C = Nickname[i];
+    for (size_t I = 0; I < Nickname.size(); I++) {
+        char C = Nickname[I];
         if (! (std::isalnum(C) || 
                C == '[' || C == ']' || C == '{' || C == '}' || 
                C == '\\' || C == '|')) 
@@ -322,28 +331,30 @@ bool IsValidPassword(const std::string &Password) {
         std::cerr << "Error: Password cannot be empty." << std::endl;
         return false;
     }
-    size_t i = 0;
-    for (; i < Password.length(); i++) {
-      if (!std::isprint(Password[i])) {
+    size_t I = 0;
+    for (; I < Password.length(); I++)
+    {
+      if (!std::isprint(Password[I])) {
         std::cerr << "Error: Password contains unprintable characters." << std::endl;
         return false;
       }
     }
-    i = 0;
-    for (; i < Password.length(); i++) {
-      if (!std::isspace(Password[i]))
+    I = 0; // Reset counter for the next loop
+    for (; I < Password.length(); I++)
+    {
+      if (!std::isspace(Password[I]))
         break;
     }
-    if (i == Password.length()) {
+    if (I == Password.length())
+    {
       std::cerr << "Error: Password cannot be empty." << std::endl;
       return false;
     }
+
     return true;
 }
 
 int main(int argc, char *argv[]) {
-    std::srand(std::time(NULL));
-
     if (argc != 5) {
         std::cerr << "Usage: " << argv[0] << " <nick_name> <server_ip> <port> <password>" << std::endl;
         return 1;
@@ -366,9 +377,10 @@ int main(int argc, char *argv[]) {
         std::cerr << "Error: Invalid port. Must be 1-65535." << std::endl;
         return 1;
     }
-    int Port = std::atoi(PortStr.c_str()); 
     
+    int Port = std::atoi(PortStr.c_str()); 
     std::string Password = Trim(argv[4]);
+    
     if (!IsValidPassword(Password)) {
         return 1;
     }
