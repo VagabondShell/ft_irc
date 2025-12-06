@@ -56,11 +56,6 @@ void Server::execute_modes(Client* client, Channel *channel, const std::vector<s
         return;
     size_t paramIndex = 0;
 
-
-    if (!channel->IsOperator(client)) {
-        client->SendReply("482", channel->GetName() + " :You're not channel operator");
-        return ;
-    }
     
     int i = 0;
     for (i = 0; i < (int)modes.size(); ++i) 
@@ -193,21 +188,27 @@ void Server::handleModeCommand(Client *client, std::vector<std::string> args)
         return;
     }
     Channel* channel = it_ch->second;
+    bool is_op = true;
+    if (!channel->IsOperator(client)) 
+        is_op = false;
 
     if (args.size() == 2) {
-
-        std::string modes = channel->GetModes().toString();
+        std::string modes = channel->GetModes().toString(is_op);
         client->SendReply("324", channelName + " " + modes);
         std::stringstream time_str;
         time_str << channel->GetCreationTime();
         client->SendReply("329", channelName + " " + time_str.str());
         return;
     }
+    if (!is_op) {
+        client->SendReply("482", channel->GetName() + " :You're not channel operator");
+        return ;
+    }
+    
     std::string modes = args[2];
 
     std::vector<std::string> modes_vec;
     std::vector<std::string> parms;
-
     
     create_modes(args, modes_vec, parms, client);
     execute_modes(client, channel, modes_vec, parms);
