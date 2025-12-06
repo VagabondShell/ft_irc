@@ -31,7 +31,14 @@ struct ChannelModes {
         std::string params;
         if (inviteOnly) flags += "i";
         if (topicOpOnly) flags += "t";
-        if (passwordSet) { flags += "k"; params += " " + password; }
+        if (passwordSet) 
+        { 
+            flags += "k"; 
+            if (is_op)
+                params += " " + password; 
+            else
+                params += " ****";
+        }
         if (userLimitSet) {
             flags += "l";
             std::ostringstream oss;
