@@ -15,7 +15,8 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
   }
   std::string message = args[2];
   std::vector<std::string> recipients = generateElements(args[1]);
-  for (size_t i = 0; i < recipients.size(); i++){
+  for (size_t i = 0; i < recipients.size(); i++)
+  {
     std::string target = recipients[i];
     if (target.empty())
       continue;
@@ -24,14 +25,14 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
       std::map<std::string, Channel*>::iterator chan_list = _channels.find(target);
       if (chan_list == _channels.end()) {
         client->SendReply("403", target + " :No such channel");
-        return;
+        continue;
       }
 
       Channel *channel = chan_list->second;
 
       if (!channel->IsMember(client)) {
         client->SendReply("442", target + " :You're not on that channel");
-        return;
+        continue;
       }
 
       std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() +
@@ -40,7 +41,7 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
       std::string msg = prefix + " PRIVMSG " + target + " :" + message;
 
       channel->Broadcast(msg, client);
-      return;
+      continue;
     }
 
 
@@ -48,13 +49,13 @@ void Server::handlePrivmsgCommand(Client *client, std::vector<std::string> args)
     if (it == _nicknames.end())
     {
       client->SendReply("401", target + " :No such nick/channel");
-      return;
+      continue;;
     }
     Client *receiver = it->second;
     if (!receiver->IsRegistered())
     {
       client->SendReply("401", target + " :No such nick/channel");
-      return;
+      continue;;
     }
     std::string prefix = ":" + client->GetNickName() + "!" +
       client->GetUserName() + "@" +
