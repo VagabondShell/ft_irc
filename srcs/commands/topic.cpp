@@ -45,6 +45,7 @@ void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
     else 
     {
       client->SendReply("332", channelName + " " + channel->GetTopic());
+      client->SendReply("333", channelName + " " + channel->getTopicSetter() + " " + channel->getTopicSetTime());
     }
     return;
   }
