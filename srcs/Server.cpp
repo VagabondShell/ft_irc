@@ -285,10 +285,6 @@ void Server::disconnectClient(int current_fd) {
     _clients.erase(current_fd);
 }
 
-time_t Server::getStartTime() const {
-    return _StartTime;
-}
-
 void Server::run() {
     bool disconnected ;
     while (true) {
