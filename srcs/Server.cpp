@@ -294,7 +294,6 @@ void Server::run() {
             disconnected = false;
             int current_fd = _pollFds[i].fd;
             if (_pollFds[i].revents & (POLLHUP | POLLERR)) {
-                std::cerr << "[LOG] Abrupt disconnect detected on FD " << current_fd << std::endl;
                 disconnected = true; 
             }
             else if (_pollFds[i].revents & POLLIN) {
