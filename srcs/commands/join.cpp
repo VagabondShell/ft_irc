@@ -44,26 +44,25 @@ std::string channel_members(Channel const &chan)
     }
     return list;
 }
-void respone_msg(Client *client,std::string prefix,std::string channel_name,Channel *channel)
+void respone_msg(Client *client, std::string prefix, std::string channel_name, Channel *channel)
 {
-
     if(client) 
     {
-        client->GetOutBuffer().append((prefix+" JOIN " + channel_name + "\r\n"));
+        client->GetOutBuffer().append((prefix + " JOIN :" + channel_name + "\r\n"));
         client->SetPollOut(true);
         if(!channel->GetTopic().empty())
         {
-            client->SendReply("332",channel_name+ " " + channel->GetTopic());
-            client->SendReply("333",channel_name+" "+ channel->getTopicSetter() +" " + channel->getTopicSetTime());
+            client->SendReply("332", channel_name + " :" + channel->GetTopic());
+            client->SendReply("333", channel_name + " " + channel->getTopicSetter() + " " + channel->getTopicSetTime());
         }
-        client->SendReply("353","= " + channel_name+" :" + channel_members(*channel));
-        client->SendReply("366",channel_name+" :End of /NAMES list.");
-        channel->Broadcast((prefix + " JOIN " + channel_name),client);
+        client->SendReply("353", "= " + channel_name + " :" + channel_members(*channel));
+        client->SendReply("366", channel_name + " :End of /NAMES list.");
+        channel->Broadcast((prefix + " JOIN :" + channel_name), client);
     }
 }
 bool check_channel(std::string channel)
 {
-    if (channel.empty() || channel.size() > 200 ||
+    if (channel.size() > 200 ||
         (channel[0] != '#' && channel[0] != '&') ||
         channel.find('\t') != std::string::npos)
         return false;
@@ -115,6 +114,8 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
             handlePartCommand(client,args_part);
             continue;
         }
+        if(channels[i].empty())
+            continue;
         if (!check_channel(channels[i]))
         {
             content = channels[i] +" :No such channel";
