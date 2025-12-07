@@ -118,15 +118,17 @@ void Server::execute_modes(Client* client, Channel *channel, const std::vector<s
                     continue;
                 }
  
-                size_t limit = atoi(modeParams[paramIndex].c_str());
-                if (limit <= 0) 
+                char *EndPtr;
+                errno = 0;
+                long limit = std::strtol(modeParams[paramIndex].c_str(), &EndPtr, 10);
+                if (limit <= 0 || *EndPtr != '\0' || errno == ERANGE)
                 {
                     client->SendReply("696", channel->GetName() + " " + c +" :Invalid limit parameter");
                     paramIndex++;
                     continue;
                 }
                 channel->GetModes().userLimitSet = true;
-                channel->GetModes().userLimit = (size_t)limit;
+                channel->GetModes().userLimit = limit;
                 channel->Broadcast(":ft_irc.local MODE " + channel->GetName() + " " + mode_str + " " + modeParams[paramIndex].c_str(), NULL);
                 paramIndex++;
             } 
