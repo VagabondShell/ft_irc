@@ -85,6 +85,7 @@ void Server::execute_modes(Client* client, Channel *channel, const std::vector<s
                 if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty()) 
                 {
                     client->SendReply("696", channel->GetName() + " " + c +" :No parameter provided");
+                    paramIndex++;
                     continue;
                 }
 
@@ -113,6 +114,7 @@ void Server::execute_modes(Client* client, Channel *channel, const std::vector<s
                 if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty()) 
                 {
                     client->SendReply("696", channel->GetName() + " " + c +" :No parameter provided");
+                    paramIndex++;
                     continue;
                 }
  
@@ -120,6 +122,7 @@ void Server::execute_modes(Client* client, Channel *channel, const std::vector<s
                 if (limit <= 0) 
                 {
                     client->SendReply("696", channel->GetName() + " " + c +" :Invalid limit parameter");
+                    paramIndex++;
                     continue;
                 }
                 channel->GetModes().userLimitSet = true;
@@ -139,6 +142,7 @@ void Server::execute_modes(Client* client, Channel *channel, const std::vector<s
             if (paramIndex >= modeParams.size() || modeParams[paramIndex].empty())
             {
                 client->SendReply("696", channel->GetName() + " " + c +" :No parameter provided");
+                paramIndex++;
                 continue;
             }
 
