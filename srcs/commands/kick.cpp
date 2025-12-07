@@ -28,6 +28,12 @@ void Server::handleKickCommand(Client *client, std::vector<std::string> args)
         client->SendReply("403", content);
         return;
     }
+    if (!channel_it->second->IsMember(client))
+    {
+        std::string content = channel + " :You're not on that channel";
+        client->SendReply("442", content);
+        return;
+    }
     if (!channel_it->second->IsOperator(client))
     {
         std::string content = channel + " :You're not channel operator";

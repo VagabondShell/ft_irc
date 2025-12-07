@@ -45,12 +45,6 @@ void Server::handleInviteCommand(Client *client, std::vector<std::string> args)
         client->SendReply("442", content);
         return;
     }
-    if (channel_it->second->IsMemberByNick(target))
-    {
-        std::string content = target + " " + channel + " :is already on channel";
-        client->SendReply("443", content);
-        return;
-    }
     Mods = channel_it->second->GetModes();
     if (!channel_it->second->IsOperator(client) && Mods.inviteOnly)
     {
@@ -58,7 +52,12 @@ void Server::handleInviteCommand(Client *client, std::vector<std::string> args)
         client->SendReply("482", content);
         return;
     }
- 
+    if (channel_it->second->IsMemberByNick(target))
+    {
+        std::string content = target + " " + channel + " :is already on channel";
+        client->SendReply("443", content);
+        return;
+    }
     if (!is_active(target))
     {
         std::string content =  target + " :No such nick";
