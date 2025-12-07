@@ -184,10 +184,6 @@ std::string GetServerAuth(int BotSocketFd) {
         if (BytesRead <= 0) {
             if (BytesRead == 0)
                 throw std::runtime_error("Server closed connection unexpectedly.");
-            else if (BytesRead < 0) {
-                if (errno != EWOULDBLOCK && errno != EAGAIN)
-                    throw std::runtime_error("recv error.");
-            }
         }
         if (BytesRead > 0)
             BotInBuffer.append(Buff, BytesRead);
@@ -279,11 +275,7 @@ void StartBotLoop(int BotFd) {
             Buff[BytesRead] = '\0';
             BotInBuffer.append(Buff, BytesRead);
             ProcessAndExtractCommands(BotFd, BotInBuffer);
-        } else if (BytesRead < 0) {
-
-            if (errno != EWOULDBLOCK && errno != EAGAIN)
-                throw std::runtime_error("recv error.");
-        }
+        } 
     }
 }
 
