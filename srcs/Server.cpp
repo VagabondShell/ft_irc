@@ -288,8 +288,6 @@ void Server::disconnectClient(int current_fd) {
 void Server::run() {
     bool disconnected ;
     while (true) {
-        std::cerr <<  GREEN <<"Polling on " << _pollFds.size() << " FDs."
-            << std::endl;
         if (poll(&_pollFds[0], _pollFds.size(), -1) < 0)
             throw std::runtime_error("Poll fatal error");
         for (long unsigned int i = 0; i < _pollFds.size(); ++i) {

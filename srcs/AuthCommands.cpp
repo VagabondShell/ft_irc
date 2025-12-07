@@ -57,7 +57,6 @@ void Server::handleNickCommand(Client *client, std::vector<std::string>args){
     }
   std::string new_nick = trim(args[1]);
   std::string old_nick = client->GetNickName();
-  std::cout << "old_nick: " << old_nick << std::endl;
   if (!isValidNickName(new_nick)){
       client->SendReply("432", new_nick + " :Erroneus nickname");
       return;
