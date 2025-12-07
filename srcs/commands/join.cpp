@@ -85,7 +85,6 @@ void Server::handleJoinCommand(Client *client, std::vector<std::string> args)
     std::string prefix = ":" + client->GetNickName() + "!" + client->GetUserName() +
                           "@" + client->GetIpAddress();
     std::vector<std::string>::iterator it;
-    
     std::map<std::string,Channel *>::iterator channel_it;
     it = args.begin() + 1;
     channels = generateElements(*it);
