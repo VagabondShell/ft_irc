@@ -15,7 +15,7 @@ struct ChannelModes {
     bool passwordSet;      
     std::string password;
     bool userLimitSet;     
-    size_t userLimit;
+    long userLimit;
 
     ChannelModes()
         : inviteOnly(false),
