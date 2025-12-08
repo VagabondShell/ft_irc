@@ -1,8 +1,4 @@
 #include "../../includes/Server.hpp"
-#include <iostream>
-
-
-
 
 void Server::handleTopicCommand(Client *client, std::vector<std::string> args)
 {
